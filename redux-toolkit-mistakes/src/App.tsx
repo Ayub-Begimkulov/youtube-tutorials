@@ -3,16 +3,14 @@ import {
   loadTodosThunk,
   useAppDispatch,
   useStateSelector,
-  // todoActions,
-  toggleTodoDone,
-  addTodo,
-  deleteTodo,
+  todoActions,
+  useActionCreators,
 } from "./store";
 
 export const App = () => {
   // ERROR! will update way more times
-  const { status } = useStateSelector((state) => state.todo);
-  // const status = useStateSelector((state) => state.todo.status);
+  // const { status } = useStateSelector((state) => state.todo);
+  const status = useStateSelector((state) => state.todo.status);
 
   const dispatch = useAppDispatch();
 
@@ -51,7 +49,7 @@ const AddTodoForm = () => {
       return;
     }
 
-    dispatch(/* todoActions. */ addTodo({ title }));
+    dispatch(todoActions.addTodo({ title }));
     setTitle("");
   };
 
@@ -69,14 +67,18 @@ const AddTodoForm = () => {
 
 const TodoListItems = () => {
   const items = useStateSelector((state) => state.todo.items);
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
+
+  const actions = useActionCreators(todoActions);
 
   const handleDoneChange = (itemId: number) => {
-    dispatch(/* todoActions. */ toggleTodoDone({ id: itemId }));
+    // dispatch(todoActions.toggleTodoDone({ id: itemId }));
+    actions.toggleTodoDone({ id: itemId });
   };
 
   const handleDeleteTodo = (itemId: number) => {
-    dispatch(/* todoActions. */ deleteTodo({ id: itemId }));
+    // dispatch(todoActions.deleteTodo({ id: itemId }));
+    actions.deleteTodo({ id: itemId });
   };
 
   return (

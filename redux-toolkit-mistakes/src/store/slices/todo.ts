@@ -25,23 +25,23 @@ const slice = createSlice({
   reducers: {
     // ERROR! mutate everything, no need to worry
     addTodo(state, action: PayloadAction<{ title: string }>) {
-      state.items = [
+      /* state.items = [
         ...state.items,
         {
           id: getId(),
           title: action.payload.title,
           done: false,
         },
-      ];
-      /* state.items.push({
+      ]; */
+      state.items.push({
         id: getId(),
         title: action.payload.title,
         done: false,
-      }); */
+      });
     },
 
     toggleTodoDone(state, action: PayloadAction<{ id: number }>) {
-      const newItems = state.items.map((item) => {
+      /* const newItems = state.items.map((item) => {
         if (item.id !== action.payload.id) {
           return item;
         }
@@ -49,25 +49,25 @@ const slice = createSlice({
         return { ...item, done: !item.done };
       });
 
-      return { ...state, items: newItems };
+      return { ...state, items: newItems }; */
 
-      /* const item = state.items.find((item) => item.id === action.payload.id);
+      const item = state.items.find((item) => item.id === action.payload.id);
 
       if (!item) {
         return;
       }
 
-      item.done = !item.done; */
+      item.done = !item.done;
     },
 
     deleteTodo(state, action: PayloadAction<{ id: number }>) {
-      const newItems = state.items.filter(
-        (item) => item.id !== action.payload.id
-      );
+      // const newItems = state.items.filter(
+      //   (item) => item.id !== action.payload.id
+      // );
 
-      return { ...state, items: newItems };
+      // return { ...state, items: newItems };
 
-      /* const index = state.items.findIndex(
+      const index = state.items.findIndex(
         (item) => item.id === action.payload.id
       );
 
@@ -75,7 +75,7 @@ const slice = createSlice({
         return;
       }
 
-      state.items.splice(index, 1); */
+      state.items.splice(index, 1);
     },
   },
 
@@ -99,6 +99,6 @@ export const loadTodosThunk = createAsyncThunk("todo/get", () => {
 });
 
 // ERROR! todo correct export of hole actions, not only one action!
-// export const { reducer: todoReducer, actions: todoActions } = slice;
-export const todoReducer = slice.reducer;
-export const { addTodo, toggleTodoDone, deleteTodo } = slice.actions;
+export const { reducer: todoReducer, actions: todoActions } = slice;
+// export const todoReducer = slice.reducer;
+// export const { addTodo, toggleTodoDone, deleteTodo } = slice.actions;
