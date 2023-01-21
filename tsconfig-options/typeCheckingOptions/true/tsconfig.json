@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true,
+    // - alwaysStrict - adds 'use strict'
+    // - noImplicitAny
+    // - noImplicitThis
+    // - strictBindCallApply
+    // - strictFunctionTypes
+    // - strictNullChecks,
+    // - strictPropertyInitialization,
+    // - useUnknownInCatchVariables
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true
+  }
+}

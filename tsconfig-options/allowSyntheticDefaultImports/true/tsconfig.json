@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "es5",
+    "allowSyntheticDefaultImports": true,
+    "module": "CommonJS"
+  },
+  "include": ["../../node_modules/@types", "./"]
+}

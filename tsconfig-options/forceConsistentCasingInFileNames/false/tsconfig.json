@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "forceConsistentCasingInFileNames": false
+  },
+  "include": ["./"]
+}
