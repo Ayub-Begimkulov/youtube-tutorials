@@ -1,7 +1,4 @@
 {
-  "compilerOptions": {
-    "strict": true
-  },
   // directory to include
   "include": ["./src", "./some-dir/**/*.ts"],
   // directory to exclude

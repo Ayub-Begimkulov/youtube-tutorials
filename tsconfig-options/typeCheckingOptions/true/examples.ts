@@ -119,7 +119,7 @@ function useUnknownInCatchVariablesCorrect() {
       error &&
       typeof error === "object" &&
       "test" in error &&
-      typeof error.test === "object"
+      typeof error.test === "string"
     ) {
       console.log(error.test + "hello world");
     }
@@ -334,7 +334,7 @@ function allowUnusedLabelsCorrect(count: number) {
 allowUnusedLabelsCorrect(100);
 
 // ==================================
-// allowUnreachableCode
+// allowUnreachableCode - false
 // ==================================
 
 function allowUnreachableCodeIncorrect() {
