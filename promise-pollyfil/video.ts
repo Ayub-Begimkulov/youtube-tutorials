@@ -1,4 +1,4 @@
-import { isPromiseLike } from "./utils";
+import { isPromiseLike, asap } from "./utils";
 
 type Initializer<T> = (resolve: Resolve<T>, reject: Reject) => void;
 
@@ -20,19 +20,31 @@ class MyPromise<T> {
   error?: any;
 
   constructor(initializer: Initializer<T>) {
-    initializer(this.resolve, this.reject);
+    try {
+      initializer(this.resolve, this.reject);
+    } catch (error) {
+      this.reject(error);
+    }
   }
 
   then = (thenCb?: (value: T) => void, catchCb?: (reason?: any) => void) => {
-    return new MyPromise((resolve, reject) => {
+    const promise = new MyPromise((resolve, reject) => {
       this.thenCbs.push([thenCb, catchCb, resolve, reject]);
     });
+
+    this.processNextTasks();
+
+    return promise;
   };
 
   catch = (catchCb?: (reason?: any) => void) => {
-    return new MyPromise((resolve, reject) => {
+    const promise = new MyPromise((resolve, reject) => {
       this.thenCbs.push([undefined, catchCb, resolve, reject]);
     });
+
+    this.processNextTasks();
+
+    return promise;
   };
 
   private resolve = (value: T | PromiseLike<T>) => {
@@ -54,86 +66,48 @@ class MyPromise<T> {
   };
 
   private processNextTasks = () => {
-    if (this.status === "pending") {
-      return;
-    }
-
-    const thenCbs = this.thenCbs;
-    this.thenCbs = [];
-
-    thenCbs.forEach(([thenCb, catchCb, resolve]) => {
-      if (this.status === "fulfilled") {
-        const value = thenCb ? thenCb(this.value) : this.value;
-        resolve(value);
-      } else {
-        const reason = catchCb ? catchCb(this.error) : this.error;
-        resolve(reason);
+    asap(() => {
+      if (this.status === "pending") {
+        return;
       }
+
+      const thenCbs = this.thenCbs;
+      this.thenCbs = [];
+
+      thenCbs.forEach(([thenCb, catchCb, resolve, reject]) => {
+        try {
+          if (this.status === "fulfilled") {
+            const value = thenCb ? thenCb(this.value) : this.value;
+            resolve(value);
+          } else {
+            const reason = catchCb ? catchCb(this.error) : this.error;
+            resolve(reason);
+          }
+        } catch (error) {
+          reject(error);
+        }
+      });
     });
-
-    // if (this.status === "fulfilled") {
-    //   const thenCbs = this.thenCbs;
-    //   this.thenCbs = [];
-
-    //   thenCbs.forEach(([thenCb, catchCb, resolve, reject]) => {
-    //     const value = thenCb ? thenCb(this.value) : this.value;
-    //     resolve(value);
-    //   });
-    // } else {
-    //   const catchCbs = this.thenCbs;
-    //   this.thenCbs = [];
-
-    //   thenCbs.forEach(([thenCb, catchCb, resolve, reject]) => {
-    //     const value = catchCb(this.value);
-    //     reject(value);
-    //   });
-    // }
   };
 }
 
-// const sleep = (ms: number) => {
-//   return new MyPromise<void>((resolve) => {
-//     setTimeout(() => {
-//       resolve();
-//     }, ms);
-//   });
-// };
+const promise = new MyPromise<number>((resolve) => {
+  resolve(5);
+})
+  .then((value) => {
+    console.log(value);
 
-const promise = new Promise<number>((resolve, reject) => {
-  setTimeout(() => {
-    reject(5);
-  }, 500);
-}).then(
-  (value) => {
-    console.log("value:", value);
-  },
-  (value) => {
-    console.log("second", value);
-  }
-);
-
-// const promise = new Promise<number>((resolve) => {
-//   setTimeout(() => {
-//     resolve(5);
-//   }, 1);
-// })
-//   .then((value) => {
-//     console.log("value:", value);
-//     return sleep(5000);
-//   })
-//   .then(() => console.log("========"))
-//   .catch((error) => {
-//     console.log("error:", error);
-//   });
-
-// const promise = new MyPromise<number>((resolve, _reject) => {
-//   setTimeout(() => {
-//     resolve(5);
-//   }, 1_000);
-// })
-//   .then((value) => {
-//     console.log("value:", value);
-//   })
-//   .catch((error) => {
-//     console.error("error:", error);
-//   });
+    throw new Error("error");
+  })
+  .then(() => {
+    console.log("asdf");
+  })
+  .catch((error) => {
+    console.error("=======", error);
+  })
+  .then(() => {
+    return new MyPromise((resolve) => {
+      resolve(5);
+    });
+  })
+  .then(console.log);
