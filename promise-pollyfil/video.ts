@@ -1,3 +1,5 @@
+import { isPromiseLike } from "./utils";
+
 type Initializer<T> = (resolve: Resolve<T>, reject: Reject) => void;
 
 type AnyFunction = (...args: any[]) => any;
@@ -7,8 +9,12 @@ type Reject = (reason?: any) => void;
 type Status = "fulfilled" | "rejected" | "pending";
 
 class MyPromise<T> {
-  thenCbs: [AnyFunction, Resolve<T>][] = [];
-  catchCbs: [AnyFunction, Reject][] = [];
+  thenCbs: [
+    AnyFunction | undefined,
+    AnyFunction | undefined,
+    Resolve<T>,
+    Reject
+  ][] = [];
   status: Status = "pending";
   value: T | null = null;
   error?: any;
@@ -17,23 +23,27 @@ class MyPromise<T> {
     initializer(this.resolve, this.reject);
   }
 
-  then = (thenCb: (value: T) => void) => {
+  then = (thenCb?: (value: T) => void, catchCb?: (reason?: any) => void) => {
     return new MyPromise((resolve, reject) => {
-      this.thenCbs.push([thenCb, resolve]);
+      this.thenCbs.push([thenCb, catchCb, resolve, reject]);
     });
   };
 
-  catch = (catchCb: (reason?: any) => void) => {
+  catch = (catchCb?: (reason?: any) => void) => {
     return new MyPromise((resolve, reject) => {
-      this.catchCbs.push([catchCb, reject]);
+      this.thenCbs.push([undefined, catchCb, resolve, reject]);
     });
   };
 
-  private resolve = (value: T) => {
-    this.status = "fulfilled";
-    this.value = value;
+  private resolve = (value: T | PromiseLike<T>) => {
+    if (isPromiseLike(value)) {
+      value.then(this.resolve, this.reject);
+    } else {
+      this.status = "fulfilled";
+      this.value = value;
 
-    this.processNextTasks();
+      this.processNextTasks();
+    }
   };
 
   private reject = (reason?: any) => {
@@ -48,46 +58,59 @@ class MyPromise<T> {
       return;
     }
 
-    if (this.status === "fulfilled") {
-      const thenCbs = this.thenCbs;
-      this.thenCbs = [];
+    const thenCbs = this.thenCbs;
+    this.thenCbs = [];
 
-      thenCbs.forEach(([thenCb, resolve]) => {
-        const value = thenCb(this.value);
+    thenCbs.forEach(([thenCb, catchCb, resolve]) => {
+      if (this.status === "fulfilled") {
+        const value = thenCb ? thenCb(this.value) : this.value;
         resolve(value);
-      });
-    } else {
-      const catchCbs = this.catchCbs;
-      this.catchCbs = [];
+      } else {
+        const reason = catchCb ? catchCb(this.error) : this.error;
+        resolve(reason);
+      }
+    });
 
-      catchCbs.forEach(([catchCb, reject]) => {
-        const value = catchCb(this.value);
-        reject(value);
-      });
-    }
+    // if (this.status === "fulfilled") {
+    //   const thenCbs = this.thenCbs;
+    //   this.thenCbs = [];
+
+    //   thenCbs.forEach(([thenCb, catchCb, resolve, reject]) => {
+    //     const value = thenCb ? thenCb(this.value) : this.value;
+    //     resolve(value);
+    //   });
+    // } else {
+    //   const catchCbs = this.thenCbs;
+    //   this.thenCbs = [];
+
+    //   thenCbs.forEach(([thenCb, catchCb, resolve, reject]) => {
+    //     const value = catchCb(this.value);
+    //     reject(value);
+    //   });
+    // }
   };
 }
 
-const sleep = (ms: number) => {
-  return new MyPromise<void>((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, ms);
-  });
-};
+// const sleep = (ms: number) => {
+//   return new MyPromise<void>((resolve) => {
+//     setTimeout(() => {
+//       resolve();
+//     }, ms);
+//   });
+// };
 
-const promise = new MyPromise<number>((resolve) => {
+const promise = new Promise<number>((resolve, reject) => {
   setTimeout(() => {
-    resolve(5);
+    reject(5);
   }, 500);
-})
-  .then((value) => {
+}).then(
+  (value) => {
     console.log("value:", value);
-    return sleep(5_000);
-  })
-  .then(() => {
-    console.log("===========");
-  });
+  },
+  (value) => {
+    console.log("second", value);
+  }
+);
 
 // const promise = new Promise<number>((resolve) => {
 //   setTimeout(() => {
