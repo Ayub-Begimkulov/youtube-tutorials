@@ -1,20 +1,27 @@
 import { isPromiseLike, asap } from "./utils";
 
-type Initializer<T> = (resolve: Resolve<T>, reject: Reject) => void;
+type Initializer<T> = (resolve: Resolve, reject: Reject) => void;
 
-type AnyFunction = (...args: any[]) => any;
-type Resolve<T> = (value: T) => void;
+type Resolve = (value: any) => void;
 type Reject = (reason?: any) => void;
+
+type ThenCb<T> = (value: T) => any;
+type CatchCb = (reason?: any) => any;
+
+type AllSettledResult<T> =
+  | {
+      status: "fulfilled";
+      value: T;
+    }
+  | {
+      status: "rejected";
+      reason: any;
+    };
 
 type Status = "fulfilled" | "rejected" | "pending";
 
 class MyPromise<T> {
-  thenCbs: [
-    AnyFunction | undefined,
-    AnyFunction | undefined,
-    Resolve<T>,
-    Reject
-  ][] = [];
+  thenCbs: [ThenCb<T> | undefined, CatchCb | undefined, Resolve, Reject][] = [];
   status: Status = "pending";
   value: T | null = null;
   error?: any;
@@ -27,8 +34,63 @@ class MyPromise<T> {
     }
   }
 
-  then = (thenCb?: (value: T) => void, catchCb?: (reason?: any) => void) => {
-    const promise = new MyPromise((resolve, reject) => {
+  static all<U>(promises: (U | MyPromise<U>)[]) {
+    const result: U[] = Array(promises.length);
+    let count = 0;
+
+    return new MyPromise<U[]>((resolve, reject) => {
+      promises.forEach((p, index) => {
+        MyPromise.resolve(p)
+          .then((value) => {
+            result[index] = value;
+            count++;
+
+            if (count === promises.length) {
+              resolve(result);
+            }
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    });
+  }
+
+  static allSettled<U>(promises: MyPromise<U>[]) {
+    return MyPromise.all<AllSettledResult<U>>(
+      promises.map((p) =>
+        p
+          .then((value) => ({ status: "fulfilled" as const, value }))
+          .catch((reason) => ({ status: "rejected" as const, reason }))
+      )
+    );
+  }
+
+  static race<U>(promises: MyPromise<U>[]) {
+    return new MyPromise((resolve, reject) => {
+      promises.forEach((p) => {
+        MyPromise.resolve(p).then(resolve).catch(reject);
+      });
+    });
+  }
+
+  static resolve<U>(value: U | PromiseLike<U>) {
+    return new MyPromise<U>((resolve) => {
+      resolve(value);
+    });
+  }
+
+  static reject(reason?: any) {
+    return new MyPromise((_, reject) => {
+      reject(reason);
+    });
+  }
+
+  then = <U>(
+    thenCb?: (value: T) => U | PromiseLike<U>,
+    catchCb?: (reason?: any) => void
+  ) => {
+    const promise = new MyPromise<U>((resolve, reject) => {
       this.thenCbs.push([thenCb, catchCb, resolve, reject]);
     });
 
@@ -37,8 +99,8 @@ class MyPromise<T> {
     return promise;
   };
 
-  catch = (catchCb?: (reason?: any) => void) => {
-    const promise = new MyPromise((resolve, reject) => {
+  catch = <U>(catchCb?: (reason?: any) => U) => {
+    const promise = new MyPromise<U>((resolve, reject) => {
       this.thenCbs.push([undefined, catchCb, resolve, reject]);
     });
 
@@ -80,8 +142,12 @@ class MyPromise<T> {
             const value = thenCb ? thenCb(this.value) : this.value;
             resolve(value);
           } else {
-            const reason = catchCb ? catchCb(this.error) : this.error;
-            resolve(reason);
+            if (catchCb) {
+              const value = catchCb(this.error);
+              resolve(value);
+            } else {
+              reject(this.error);
+            }
           }
         } catch (error) {
           reject(error);
@@ -95,12 +161,16 @@ const promise = new MyPromise<number>((resolve) => {
   resolve(5);
 })
   .then((value) => {
-    console.log(value);
+    console.log(value); // 5
 
     throw new Error("error");
   })
   .then(() => {
     console.log("asdf");
+  })
+  .then((v) => {
+    console.log("test");
+    return "asdf";
   })
   .catch((error) => {
     console.error("=======", error);
@@ -110,4 +180,4 @@ const promise = new MyPromise<number>((resolve) => {
       resolve(5);
     });
   })
-  .then(console.log);
+  .then(console.log); // 5
