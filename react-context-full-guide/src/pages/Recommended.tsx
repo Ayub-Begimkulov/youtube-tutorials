@@ -65,6 +65,7 @@ const TextDisplay = () => {
       }}
     >
       <Text />
+      <TextConsumer />
     </Wrapper>
   );
 };
