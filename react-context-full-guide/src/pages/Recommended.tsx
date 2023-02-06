@@ -9,7 +9,16 @@ interface AppContextData {
 const AppContext = createContext<AppContextData | null>(null);
 
 const AppProvider = AppContext.Provider;
-const AppConsumer = AppContext.Provider;
+
+interface AppConsumerProps {
+  children: (data: AppContextData) => React.ReactElement;
+}
+
+const AppConsumer = (props: AppConsumerProps) => {
+  const data = useAppContext();
+
+  return props.children(data);
+};
 
 const useAppContext = () => {
   const data = useContext(AppContext);
