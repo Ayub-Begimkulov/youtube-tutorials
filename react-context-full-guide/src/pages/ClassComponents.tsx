@@ -10,6 +10,16 @@ const AppContext = createContext<AppContextData | null>(null);
 
 const AppProvider = AppContext.Provider;
 
+interface AppConsumerProps {
+  children: (data: AppContextData) => React.ReactElement;
+}
+
+const AppConsumer = (props: AppConsumerProps) => {
+  const data = useAppContext();
+
+  return props.children(data);
+};
+
 const useAppContext = () => {
   const data = useContext(AppContext);
 
@@ -18,13 +28,6 @@ const useAppContext = () => {
   }
 
   return data;
-};
-
-const AppData = (props: {
-  children: (data: AppContextData) => React.ReactElement;
-}) => {
-  const data = useAppContext();
-  return props.children(data);
 };
 
 const Form = () => {
@@ -45,13 +48,13 @@ const Form = () => {
 class FormInput extends Component {
   render() {
     return (
-      <AppData>
+      <AppConsumer>
         {({ setValue }) => (
           <Wrapper title="FormInput">
             <input type="text" onChange={(e) => setValue(e.target.value)} />
           </Wrapper>
         )}
-      </AppData>
+      </AppConsumer>
     );
   }
 }
