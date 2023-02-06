@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, memo, useContext, useRef, useState } from "react";
 import { Wrapper } from "../components/Wrapper";
 
 const useRenderCount = () => {
@@ -28,7 +28,8 @@ const useAppContext = () => {
   return data;
 };
 
-const Form = () => {
+const Form = memo(() => {
+  const renderCount = useRenderCount();
   return (
     <Wrapper
       title="Form"
@@ -38,12 +39,13 @@ const Form = () => {
         height: 150,
       }}
     >
+      <div>Render count: {renderCount}</div>
       <FormInput />
     </Wrapper>
   );
-};
+});
 
-const FormInput = () => {
+const FormInput = memo(() => {
   const { setValue } = useAppContext();
   const renderCount = useRenderCount();
 
@@ -53,9 +55,11 @@ const FormInput = () => {
       <input type="text" onChange={(e) => setValue(e.target.value)} />
     </Wrapper>
   );
-};
+});
 
-const TextDisplay = () => {
+const TextDisplay = memo(() => {
+  const renderCount = useRenderCount();
+
   return (
     <Wrapper
       title="TextDisplay"
@@ -64,12 +68,13 @@ const TextDisplay = () => {
         width: 300,
       }}
     >
+      <div>Render count: {renderCount}</div>
       <Text />
     </Wrapper>
   );
-};
+});
 
-const Text = () => {
+const Text = memo(() => {
   const { value } = useAppContext();
   const renderCount = useRenderCount();
 
@@ -79,7 +84,7 @@ const Text = () => {
       <div>{value}</div>
     </Wrapper>
   );
-};
+});
 
 export const Issues = () => {
   const [value, setValue] = useState("");
