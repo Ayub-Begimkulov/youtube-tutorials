@@ -46,6 +46,7 @@ const TextDisplay = () => {
       }}
     >
       <Text />
+      <TextConsumer />
     </Wrapper>
   );
 };
@@ -53,6 +54,14 @@ const TextDisplay = () => {
 const Text = () => {
   const { value } = useContext(AppContext);
   return <Wrapper title="Text">{value}</Wrapper>;
+};
+
+const TextConsumer = () => {
+  return (
+    <AppContext.Consumer>
+      {({ value }) => <Wrapper title="TextConsumer">{value}</Wrapper>}
+    </AppContext.Consumer>
+  );
 };
 
 export const Simple = () => {
