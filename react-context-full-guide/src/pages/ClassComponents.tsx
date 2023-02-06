@@ -75,7 +75,7 @@ const TextDisplay = () => {
 
 class Text extends Component {
   static contextType = AppContext;
-  declare context: React.ContextType<typeof AppContext>;
+  declare context: AppContextData /* React.ContextType<typeof AppContext> */;
 
   render() {
     const value = this.context!.value;
