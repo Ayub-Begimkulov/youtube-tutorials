@@ -9,6 +9,7 @@ interface AppContextData {
 const AppContext = createContext<AppContextData | null>(null);
 
 const AppProvider = AppContext.Provider;
+const AppConsumer = AppContext.Provider;
 
 const useAppContext = () => {
   const data = useContext(AppContext);
@@ -63,6 +64,14 @@ const Text = () => {
   const { value } = useAppContext();
 
   return <Wrapper title="Text">{value}</Wrapper>;
+};
+
+const TextConsumer = () => {
+  return (
+    <AppConsumer>
+      {({ value }) => <Wrapper title="TextConsumer">{value}</Wrapper>}
+    </AppConsumer>
+  );
 };
 
 export const Recommended = () => {
