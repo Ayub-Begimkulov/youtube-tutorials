@@ -18,7 +18,7 @@ const useRenderCount = () => {
   return count.current;
 };
 
-class MiniStore<T extends object> {
+class MiniStore<T> {
   private subscriptions: (() => void)[] = [];
   private state: T;
 
@@ -26,19 +26,19 @@ class MiniStore<T extends object> {
     this.state = initialState;
   }
 
-  getState() {
+  getState = () => {
     return this.state;
-  }
+  };
 
-  update(partialNewState: Partial<T>) {
+  update = (partialNewState: Partial<T>) => {
     this.state = { ...this.state, ...partialNewState };
 
     this.subscriptions.forEach((cb) => {
       cb();
     });
-  }
+  };
 
-  subscribe(cb: () => void) {
+  subscribe = (cb: () => void) => {
     this.subscriptions.push(cb);
 
     return () => {
@@ -50,10 +50,10 @@ class MiniStore<T extends object> {
 
       this.subscriptions.splice(index, 1);
     };
-  }
+  };
 }
 
-function createOptimizedContext<T extends object>() {
+function createOptimizedContext<T>() {
   const Context = createContext<MiniStore<T> | null>(null);
 
   const Provider = ({
@@ -103,16 +103,23 @@ function createOptimizedContext<T extends object>() {
     return state;
   };
 
-  return { Provider, useStateSelector, useStore };
+  const useUpdate = () => {
+    const store = useStore();
+
+    return store.update;
+  };
+
+  return { Provider, useStateSelector, useUpdate };
 }
 
 interface AppContextData {
   value: string;
 }
+
 const {
   Provider: AppProvider,
   useStateSelector,
-  useStore,
+  useUpdate,
 } = createOptimizedContext<AppContextData>();
 
 const Form = () => {
@@ -131,7 +138,7 @@ const Form = () => {
 };
 
 const FormInput = () => {
-  const store = useStore();
+  const updateValue = useUpdate();
   const renderCount = useRenderCount();
 
   return (
@@ -139,7 +146,7 @@ const FormInput = () => {
       <div>Render count: {renderCount}</div>
       <input
         type="text"
-        onChange={(e) => store.update({ value: e.target.value })}
+        onChange={(e) => updateValue({ value: e.target.value })}
       />
     </Wrapper>
   );

@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { Issues } from "./pages/Issues";
-import { NoContext } from "./pages/NoContext";
-import { Optimized } from "./pages/Optimized";
-import { Recommended } from "./pages/Recommended";
 import { Simple } from "./pages/Simple";
+import { NoContext } from "./pages/NoContext";
+import { Recommended } from "./pages/Recommended";
+import { ClassComponents } from "./pages/ClassComponents";
+import { Issues } from "./pages/Issues";
+import { Optimized } from "./pages/Optimized";
 
 type PageType =
   | "no-context"
   | "simple"
   | "recommended"
+  | "class-components"
   | "issues"
   | "optimized";
 
@@ -16,6 +18,7 @@ const pageTypeToName: Record<PageType, string> = {
   "no-context": "No Context",
   simple: "Simple",
   recommended: "Recommended",
+  "class-components": "Class Components",
   issues: "Issues",
   optimized: "Optimized",
 };
@@ -36,6 +39,7 @@ export const App = () => {
       {page === "no-context" && <NoContext />}
       {page === "simple" && <Simple />}
       {page === "recommended" && <Recommended />}
+      {page === "class-components" && <ClassComponents />}
       {page === "issues" && <Issues />}
       {page === "optimized" && <Optimized />}
     </div>
