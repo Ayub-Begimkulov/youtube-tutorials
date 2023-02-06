@@ -71,14 +71,14 @@ function createOptimizedContext<T>() {
   const useStore = () => {
     const store = useContext(Context);
     if (!store) {
-      throw new Error("Can not use `useContextData` outside of the `Provider`");
+      throw new Error("Can not use `useStore` outside of the `Provider`");
     }
     return store;
   };
 
   const useStateSelector = <Result extends any>(
     selector: (state: T) => Result
-  ) => {
+  ): Result => {
     const store = useStore();
     const [state, setState] = useState(() => selector(store.getState()));
     const selectorRef = useRef(selector);
@@ -92,6 +92,7 @@ function createOptimizedContext<T>() {
     useEffect(() => {
       return store.subscribe(() => {
         const state = selectorRef.current(store.getState());
+
         if (stateRef.current === state) {
           return;
         }
