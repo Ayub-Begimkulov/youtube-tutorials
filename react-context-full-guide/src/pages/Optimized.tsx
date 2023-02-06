@@ -123,6 +123,7 @@ const {
 } = createOptimizedContext<AppContextData>();
 
 const Form = () => {
+  const renderCount = useRenderCount();
   return (
     <Wrapper
       title="Form"
@@ -132,6 +133,7 @@ const Form = () => {
         height: 150,
       }}
     >
+      <div>Render count: {renderCount}</div>
       <FormInput />
     </Wrapper>
   );
@@ -153,6 +155,7 @@ const FormInput = () => {
 };
 
 const TextDisplay = () => {
+  const renderCount = useRenderCount();
   return (
     <Wrapper
       title="TextDisplay"
@@ -161,6 +164,7 @@ const TextDisplay = () => {
         width: 300,
       }}
     >
+      <div>Render count: {renderCount}</div>
       <Text />
     </Wrapper>
   );
