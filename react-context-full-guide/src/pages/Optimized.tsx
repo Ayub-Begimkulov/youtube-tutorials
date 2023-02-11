@@ -19,9 +19,8 @@ const useRenderCount = () => {
 };
 
 class MiniStore<T> {
-  private subscriptions: (() => void)[] = [];
+  private subscriptions: Set<() => void> = new Set<() => void>();
   private state: T;
-
   constructor(initialState: T) {
     this.state = initialState;
   }
@@ -39,16 +38,10 @@ class MiniStore<T> {
   };
 
   subscribe = (cb: () => void) => {
-    this.subscriptions.push(cb);
+    this.subscriptions.add(cb);
 
     return () => {
-      const index = this.subscriptions.indexOf(cb);
-
-      if (index === -1) {
-        return;
-      }
-
-      this.subscriptions.splice(index, 1);
+      this.subscriptions.delete(cb);
     };
   };
 }
