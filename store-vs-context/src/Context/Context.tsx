@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { loadTodosFn } from "../services";
 import { getId } from "../utils";
 import { createOptimizedContext } from "./create-optimized-context";
@@ -34,18 +34,12 @@ const ContextInner = () => {
   const status = useStateSelector((state) => state.status);
 
   const update = useUpdate();
-  const isMounted = useRef(false);
 
   useEffect(() => {
-    isMounted.current = true;
     update({ status: "loading" });
 
     loadTodosFn()
       .then((todos) => {
-        if (!isMounted.current) {
-          return;
-        }
-
         const itemsMap: Record<number, TodoItem> = {};
         const itemIds: number[] = [];
 
@@ -63,18 +57,10 @@ const ContextInner = () => {
       .catch((error) => {
         console.error(error);
 
-        if (!isMounted.current) {
-          return;
-        }
-
         update({
           status: "error",
         });
       });
-
-    return () => {
-      isMounted.current = false;
-    };
   }, [update]);
 
   const renderList = () => {
