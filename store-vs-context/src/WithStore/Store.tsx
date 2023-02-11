@@ -74,6 +74,7 @@ const AddTodoForm = () => {
 };
 
 const TodoListItems = () => {
+  console.log("render todo list");
   const itemsIds = useStateSelector((state) => state.todo.itemIds);
 
   const actions = useActionCreators(todoActions);
@@ -113,6 +114,8 @@ const TodoItem = ({
 }: TodoItemProps) => {
   const item = useStateSelector((state) => state.todo.itemsMap[id]);
 
+  console.log("render todo item");
+
   if (!item) {
     return null;
   }
@@ -131,7 +134,10 @@ const TodoItem = ({
 
       <button
         style={{ outline: "none", marginLeft: 6 }}
-        onClick={() => handleDeleteTodo(item.id)}
+        onClick={() => {
+          console.log("before delete");
+          handleDeleteTodo(item.id);
+        }}
       >
         x
       </button>

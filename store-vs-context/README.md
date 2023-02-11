@@ -2,6 +2,7 @@
 
 **Difference:**
 
-- The wat of writing code
-- Batching
-- Correct order of the updates
+- The way of writing code.
+- Libraries that integrate with it.
+- Batching (before react 18).
+- Correct order of the updates.

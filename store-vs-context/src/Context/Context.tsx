@@ -137,6 +137,8 @@ const TodoListItems = () => {
   const itemsIds = useStateSelector((state) => state.itemIds);
   const update = useUpdate();
 
+  console.log("render todo list");
+
   const handleDoneChange = (itemId: number) => {
     update((state) => ({
       ...state,
@@ -185,6 +187,9 @@ const TodoItem = ({
 }: TodoItemProps) => {
   const item = useStateSelector((state) => state.itemsMap[id]);
 
+  // unnecessary renders
+  console.log("render todo item");
+
   if (!item) {
     return null;
   }
@@ -199,11 +204,21 @@ const TodoItem = ({
         checked={item.done}
         onChange={() => handleDoneChange(item.id)}
       />
+
       {item.title}
 
       <button
         style={{ outline: "none", marginLeft: 6 }}
-        onClick={() => handleDeleteTodo(item.id)}
+        onClick={() => {
+          // console.log("before delete");
+          // handleDeleteTodo(item.id);
+
+          // Could have an error without batching.
+          setTimeout(() => {
+            console.log("before delete");
+            handleDeleteTodo(item.id);
+          }, 500);
+        }}
       >
         x
       </button>
