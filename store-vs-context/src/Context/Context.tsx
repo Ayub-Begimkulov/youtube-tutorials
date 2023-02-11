@@ -144,7 +144,10 @@ const TodoListItems = () => {
       ...state,
       itemsMap: {
         ...state.itemsMap,
-        [itemId]: { ...state.itemsMap[itemId], done: !state.itemsMap[itemId] },
+        [itemId]: {
+          ...state.itemsMap[itemId],
+          done: !state.itemsMap[itemId]?.done,
+        },
       },
     }));
   };
@@ -210,14 +213,14 @@ const TodoItem = ({
       <button
         style={{ outline: "none", marginLeft: 6 }}
         onClick={() => {
-          // console.log("before delete");
-          // handleDeleteTodo(item.id);
+          console.log("before delete");
+          handleDeleteTodo(item.id);
 
           // Could have an error without batching.
-          setTimeout(() => {
-            console.log("before delete");
-            handleDeleteTodo(item.id);
-          }, 500);
+          // setTimeout(() => {
+          //   console.log("before delete");
+          //   handleDeleteTodo(item.id);
+          // }, 500);
         }}
       >
         x
