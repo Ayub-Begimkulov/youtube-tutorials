@@ -6,15 +6,7 @@ import { ClassComponents } from "./pages/ClassComponents";
 import { Issues } from "./pages/Issues";
 import { Optimized } from "./pages/Optimized";
 
-type PageType =
-  | "no-context"
-  | "simple"
-  | "recommended"
-  | "class-components"
-  | "issues"
-  | "optimized";
-
-const pageTypeToName: Record<PageType, string> = {
+const pageTypeToName = {
   "no-context": "No Context",
   simple: "Simple",
   recommended: "Recommended",
@@ -22,6 +14,8 @@ const pageTypeToName: Record<PageType, string> = {
   issues: "Issues",
   optimized: "Optimized",
 };
+
+type PageType = keyof typeof pageTypeToName;
 
 export const App = () => {
   const [page, setPage] = useState<PageType>("no-context");
