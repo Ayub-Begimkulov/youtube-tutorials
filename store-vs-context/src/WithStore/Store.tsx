@@ -135,8 +135,10 @@ const TodoItem = ({
       <button
         style={{ outline: "none", marginLeft: 6 }}
         onClick={() => {
-          console.log("before delete");
-          handleDeleteTodo(item.id);
+          setTimeout(() => {
+            console.log("before delete");
+            handleDeleteTodo(item.id);
+          }, 500);
         }}
       >
         x

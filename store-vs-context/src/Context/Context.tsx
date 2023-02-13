@@ -199,14 +199,14 @@ const TodoItem = ({
       <button
         style={{ outline: "none", marginLeft: 6 }}
         onClick={() => {
-          console.log("before delete");
-          handleDeleteTodo(item.id);
+          // console.log("before delete");
+          // handleDeleteTodo(item.id);
 
           // Could have an error without batching.
-          // setTimeout(() => {
-          //   console.log("before delete");
-          //   handleDeleteTodo(item.id);
-          // }, 500);
+          setTimeout(() => {
+            console.log("before delete");
+            handleDeleteTodo(item.id);
+          }, 500);
         }}
       >
         x

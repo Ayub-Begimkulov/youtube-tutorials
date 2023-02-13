@@ -8,7 +8,7 @@ import {
   useLayoutEffect,
   useEffect,
 } from "react";
-// import { unstable_batchedUpdates } from "react-dom";
+import { unstable_batchedUpdates } from "react-dom";
 
 class MiniStore<T> {
   private subscriptions: (() => void)[] = [];
@@ -28,11 +28,11 @@ class MiniStore<T> {
         ? partialNewState(this.state)
         : { ...this.state, ...partialNewState };
 
-    // unstable_batchedUpdates(() => {
-    this.subscriptions.forEach((cb) => {
-      cb();
+    unstable_batchedUpdates(() => {
+      this.subscriptions.forEach((cb) => {
+        cb();
+      });
     });
-    // });
   };
 
   subscribe = (cb: () => void) => {
