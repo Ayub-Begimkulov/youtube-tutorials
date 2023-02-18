@@ -29,8 +29,8 @@ export const App = () => {
       <h1>{pageIdToTitle[page]}</h1>
 
       {page === "mobx" && <Mobx />}
-      {page === "reduxUnoptimized" && <Redux />}
-      {page === "redux" && <ReduxUnoptimized />}
+      {page === "reduxUnoptimized" && <ReduxUnoptimized />}
+      {page === "redux" && <Redux />}
     </div>
   );
 };
