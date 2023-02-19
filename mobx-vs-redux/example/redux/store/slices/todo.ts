@@ -28,7 +28,7 @@ const slice = createSlice({
       const id = getId();
 
       state.itemsMap[id] = {
-        id: getId(),
+        id,
         title: action.payload.title,
         done: false,
       };

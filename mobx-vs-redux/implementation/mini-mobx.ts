@@ -68,7 +68,7 @@ const state = observable({
 });
 
 autoRun(() => {
-  console.log(state.test /* , state.a */);
+  console.log(state.test, state.a);
 });
 
 state.test = 6;
