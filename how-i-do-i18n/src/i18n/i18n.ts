@@ -1,30 +1,33 @@
 // we might have translation as an object, if it's plural
 type Translation = string | Record<string, string>;
-type Keyset = Record<string, Translation>;
+type LanguageConfig = {
+  keyset: Record<string, Translation>;
+  pluralize: (count: number) => string;
+};
 
 interface I18NOptions<
-  KeysetsMap extends Record<string, Keyset>,
-  Lang extends keyof KeysetsMap = keyof KeysetsMap
+  LanguagesMap extends Record<string, LanguageConfig>,
+  Lang extends keyof LanguagesMap = keyof LanguagesMap
 > {
   defaultLang: Lang;
-  keysets: KeysetsMap;
+  languages: LanguagesMap;
 }
 
 type GetRestParams<
-  KeysetsMap extends Record<string, Keyset>,
-  Key extends keyof KeysetsMap[keyof KeysetsMap]
-> = KeysetsMap[keyof KeysetsMap][Key] extends object
+  KeysetsMap extends Record<string, LanguageConfig>,
+  Key extends keyof KeysetsMap[keyof KeysetsMap]["keyset"]
+> = KeysetsMap[keyof KeysetsMap]["keyset"][Key] extends object
   ? [options: { count: number; [key: string]: number | string }]
   : [options?: Record<string, string | number>];
 
-export class I18N<KeysetsMap extends Record<string, Keyset>> {
+export class I18N<KeysetsMap extends Record<string, LanguageConfig>> {
   private lang: keyof KeysetsMap;
   private subscribers = new Set<(lang: keyof KeysetsMap) => void>();
   private keysets: KeysetsMap;
 
   constructor(options: I18NOptions<KeysetsMap>) {
     this.lang = options.defaultLang;
-    this.keysets = options.keysets;
+    this.keysets = options.languages;
   }
 
   getLang() {
@@ -35,14 +38,14 @@ export class I18N<KeysetsMap extends Record<string, Keyset>> {
     return this.keysets[this.lang];
   }
 
-  get<Key extends keyof KeysetsMap[keyof KeysetsMap]>(
+  get<Key extends keyof KeysetsMap[keyof KeysetsMap]["keyset"]>(
     key: Key,
     ...rest: GetRestParams<KeysetsMap, Key>
   ): string {
-    const keyset = this.getKeyset();
+    const { keyset, pluralize } = this.getKeyset()!;
 
     const translation: string | Record<string, string> | undefined =
-      keyset?.[key];
+      keyset[key];
 
     if (typeof translation === "undefined") {
       return String(key);
@@ -53,8 +56,7 @@ export class I18N<KeysetsMap extends Record<string, Keyset>> {
       return interpolateTranslation(translation, params);
     }
 
-    const pluralizeFn = languageToPluralizeMap[i18n.getLang()];
-    const pluralKey = pluralizeFn(params.count as number);
+    const pluralKey = pluralize(params.count as number);
 
     const pluralizedTranslation = translation[pluralKey]!;
 
