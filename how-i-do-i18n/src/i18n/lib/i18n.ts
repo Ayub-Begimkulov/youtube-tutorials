@@ -2,7 +2,7 @@
 type Translation = string | Record<string, string>;
 type Keyset = Record<string, Translation>;
 
-type LanguageConfig = {
+export type LanguageConfig = {
   keyset: Keyset | (() => Promise<Keyset>);
   pluralize: (count: number) => string;
 };
