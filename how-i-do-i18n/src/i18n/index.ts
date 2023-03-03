@@ -1,1 +1,9 @@
-export { i18n, useI18N, useTranslate } from "./setup";
+export {
+  I18N,
+  I18NProvider,
+  useI18N,
+  useTranslate,
+  TaggedText,
+  pluralizeEn,
+  pluralizeRu,
+} from "./lib";

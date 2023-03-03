@@ -1,5 +1,5 @@
 export const ru = {
-  test: "тест",
+  test_key: "тест",
   plural: {
     one: "Один элемент",
     few: "{{count}} элемента",

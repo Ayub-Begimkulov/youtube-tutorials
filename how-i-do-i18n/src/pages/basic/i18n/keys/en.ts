@@ -1,5 +1,5 @@
 export const en = {
-  test: "test",
+  test_key: "test",
   a: "asdf",
   plural: {
     one: "One item",

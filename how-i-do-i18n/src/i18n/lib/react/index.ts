@@ -1,2 +1,2 @@
-export { I18NProvider } from "./components";
+export { I18NProvider, TaggedText } from "./components";
 export { useI18N, useTranslate } from "./hooks";

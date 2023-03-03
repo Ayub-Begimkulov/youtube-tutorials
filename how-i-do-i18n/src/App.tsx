@@ -1,20 +1,40 @@
-import { useI18N, useTranslate } from "./i18n/setup";
+import { useState } from "react";
+import { BasicExample } from "./pages/basic/BasicExample";
+import { FormattingTextExample } from "./pages/formatting/FormattingTextExample";
+import { FullExample } from "./pages/full/FullExample";
+
+const pagesMap = {
+  basic: "Basic",
+  formatting: "Formatting",
+  full: "Full",
+};
+
+type PageType = keyof typeof pagesMap;
 
 export const App = () => {
-  const translate = useTranslate();
-  const i18n = useI18N();
-
-  const updateLang = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    i18n.setLang(e.target.value as "en" | "ru");
-  };
+  const [page, setPage] = useState<PageType>("basic");
 
   return (
     <div>
-      <div>{translate("test")}</div>
-      <select value={i18n.getLang()} onChange={updateLang}>
-        <option value={"en"}>En</option>
-        <option value={"ru"}>Ru</option>
-      </select>
+      <div
+        style={{
+          marginBottom: 20,
+          padding: 12,
+          borderBottom: "1px solid lightgrey",
+          display: "flex",
+          gap: 8,
+        }}
+      >
+        {Object.entries(pagesMap).map(([type, name]) => (
+          <button key={type} onClick={() => setPage(type as PageType)}>
+            {name}
+          </button>
+        ))}
+      </div>
+
+      {page === "basic" && <BasicExample />}
+      {page === "formatting" && <FormattingTextExample />}
+      {page === "full" && <FullExample />}
     </div>
   );
 };
