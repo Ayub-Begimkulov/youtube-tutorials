@@ -1,7 +1,9 @@
 // we might have translation as an object, if it's plural
 type Translation = string | Record<string, string>;
+type Keyset = Record<string, Translation>;
+
 type LanguageConfig = {
-  keyset: Record<string, Translation>;
+  keyset: Keyset | (() => Promise<Keyset>);
   pluralize: (count: number) => string;
 };
 
@@ -13,10 +15,22 @@ interface I18NOptions<
   languages: LanguagesMap;
 }
 
+type KeyType<KeysetsMap extends Record<string, LanguageConfig>> =
+  keyof KeysetType<KeysetsMap>;
+
+type KeysetType<KeysetsMap extends Record<string, LanguageConfig>> =
+  UnwrapKeysetType<KeysetsMap[keyof KeysetsMap]["keyset"]>;
+
+type UnwrapKeysetType<
+  MaybeUnresolvedKeyset extends Keyset | (() => Promise<Keyset>)
+> = MaybeUnresolvedKeyset extends () => Promise<infer ResolvedKeyset>
+  ? ResolvedKeyset
+  : MaybeUnresolvedKeyset;
+
 type GetRestParams<
   KeysetsMap extends Record<string, LanguageConfig>,
-  Key extends keyof KeysetsMap[keyof KeysetsMap]["keyset"]
-> = KeysetsMap[keyof KeysetsMap]["keyset"][Key] extends object
+  Key extends KeyType<KeysetsMap>
+> = KeysetType<KeysetsMap>[Key] extends object
   ? [options: { count: number; [key: string]: number | string }]
   : [options?: Record<string, string | number>];
 
@@ -26,23 +40,26 @@ export class I18N<KeysetsMap extends Record<string, LanguageConfig>> {
   private keysets: KeysetsMap;
 
   constructor(options: I18NOptions<KeysetsMap>) {
-    this.lang = options.defaultLang;
     this.keysets = options.languages;
+
+    this.setLang(options.defaultLang);
+    // call it just for the TS to not complain
+    this.lang = options.defaultLang;
   }
 
   getLang() {
     return this.lang;
   }
 
-  getKeyset() {
-    return this.keysets[this.lang];
-  }
-
-  get<Key extends keyof KeysetsMap[keyof KeysetsMap]["keyset"]>(
+  get<Key extends KeyType<KeysetsMap>>(
     key: Key,
     ...rest: GetRestParams<KeysetsMap, Key>
   ): string {
-    const { keyset, pluralize } = this.getKeyset()!;
+    const { keyset, pluralize } = this.keysets[this.lang]!;
+
+    if (typeof keyset === "function") {
+      return String(key);
+    }
 
     const translation: string | Record<string, string> | undefined =
       keyset[key];
@@ -63,14 +80,31 @@ export class I18N<KeysetsMap extends Record<string, LanguageConfig>> {
     return interpolateTranslation(pluralizedTranslation, params);
   }
 
-  setLang(newLang: string) {
-    if (newLang === this.lang) {
-      return;
+  async setLang(newLang: keyof KeysetsMap) {
+    try {
+      if (newLang === this.lang) {
+        return;
+      }
+
+      const { keyset } = this.keysets[newLang]!;
+
+      if (typeof keyset === "function") {
+        const resolvedKeyset = await keyset();
+
+        this.keysets[newLang]!.keyset = resolvedKeyset;
+      }
+
+      this.lang = newLang;
+
+      this.subscribers.forEach((cb) => cb(newLang));
+    } catch (error) {
+      console.error(
+        `Error happened trying to update language. Can not resolve lazy loaded keyset for "${String(
+          newLang
+        )}" language. See the error below to get more details`
+      );
+      throw error;
     }
-
-    this.lang = newLang;
-
-    this.subscribers.forEach((cb) => cb(newLang));
   }
 
   subscribe(
