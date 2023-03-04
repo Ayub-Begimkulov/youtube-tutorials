@@ -104,7 +104,9 @@ const FullExampleInner = () => {
           </option>
         ))}
       </select>
+
       <AddTodoForm inputRef={createTaskInputRef} onAddTodo={handleAddTodo} />
+
       <div style={{ marginTop: 12 }}>{renderList()}</div>
     </div>
   );

@@ -12,7 +12,7 @@ const pagesMap = {
 type PageType = keyof typeof pagesMap;
 
 export const App = () => {
-  const [page, setPage] = useState<PageType>("basic");
+  const [page, setPage] = useState<PageType>("full");
 
   return (
     <div>

@@ -26,7 +26,7 @@ export function useTranslate<I18NType extends I18N<any>>() {
     (key, ...rest) => {
       return i18n.get(key, ...rest);
     },
-    // include the lang into the deps array
+    // include the `updateCount` into the deps array
     // so that translate changes it's reference whenever the language changes
     [updateCount]
   );
