@@ -1,31 +1,44 @@
 export {};
 
-interface ErrorResponse<
-  Details extends Record<string, unknown> = Record<string, unknown>
-> {
+interface ErrorResponse {
   status: number;
   statusText: string;
   message: string;
-  details?: Details;
 }
 
-interface FieldError {
-  name: string;
-  type: string;
-  error: string;
+function isObject(value: unknown): value is object {
+  return typeof value === "object" && value !== null;
 }
 
-type FormValidationError = ErrorResponse<{ fields: FieldError[] }>;
+function isErrorResponse(value: unknown): value is ErrorResponse {
+  if (!isObject(value)) {
+    return false;
+  }
 
-function isFormValidationError(value: unknown) {}
+  if (
+    "status" in value &&
+    typeof value.status === "number" &&
+    "statusText" in value &&
+    typeof value.statusText === "string" &&
+    "message" in value &&
+    typeof value.message === "string"
+  ) {
+    return true;
+  }
+
+  return false;
+}
 
 function submitForm() {
   try {
     // ...
     // do some logic and make a request
   } catch (error) {
-    if (isFormValidationError(error)) {
-      // show errors in the form
+    if (isErrorResponse(error)) {
+      error;
+      // ^?
+      // show alert with error
+      // Alert.open({type: 'error', message: error.message})
     }
     console.error(error);
   }
