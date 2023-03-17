@@ -1,22 +1,35 @@
 export {};
 
-function addRandomNumber<T>(value: T) {
-  value.push(Math.floor(Math.random() * 100));
-  //    ^^^^
-  // Property 'push' does not exist on type 'T'.ts(2339)
-  return value;
+function withCharCodesWrong<T>(value: T) {
+  const charCodes: number[] = [];
+
+  for (let i = 0, l = value.length; i < l; i++) {
+    //                      ^^^^^^
+    // Property 'length' does not exist on type 'T'.ts(2339)
+    charCodes.push(value.charCodeAt(i));
+    //                   ^^^^^^^^^^
+    // Property 'charCodeAt' does not exist on type 'T'.ts(2339)
+  }
+
+  return [value, charCodes] as const;
 }
 
-addRandomNumber([1, 2, 3]);
+withCharCodesWrong("asdf");
 // should be error! but works...
-addRandomNumber(["asdf", "test"]);
+withCharCodesWrong(["asdf", "test"]);
 
-function addRandomNumberConstraint<T extends number[]>(value: T) {
-  value.push(Math.floor(Math.random() * 100));
-  return value;
+function withCharCodes<T extends string>(value: T) {
+  const charCodes: number[] = [];
+
+  for (let i = 0, l = value.length; i < l; i++) {
+    charCodes.push(value.charCodeAt(i));
+  }
+
+  return [value, charCodes] as const;
 }
 
-addRandomNumberConstraint([1, 2, 3]);
-addRandomNumberConstraint(["asdf", "test"]);
-//                         ^^^^^^  ^^^^^^
-// Type 'string' is not assignable to type 'number'.ts(2322)
+withCharCodes("asdf");
+withCharCodes(["asdf", "test"]);
+//            ^^^^^^^^^^^^^^^^
+// Argument of type 'string[]' is not assignable
+// to parameter of type 'string'.ts(2345)

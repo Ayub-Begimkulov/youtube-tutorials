@@ -1,5 +1,18 @@
 export {};
 
+/* const GenericNotWorking = <T>({ value }: { value: T }) => {
+  //                      ^^^
+  // JSX element 'T' has no corresponding closing tag.ts(17008)
+  return <div>{JSON.stringify(value)}</div>;
+};
+ */
+
+const GenericWorking = <T,>({ value }: { value: T }) => {
+  return <div>{JSON.stringify(value)}</div>;
+};
+
+<GenericWorking value={5} />;
+
 interface GenericComponentProps<Option extends string> {
   options: Option[];
   onChange: (value: Option) => void;
@@ -22,5 +35,18 @@ const GenericComponent = <Option extends string>({
 
 <GenericComponent
   options={["asdf", "test", "hello"]}
-  onChange={(value) => console.log(value)}
+  onChange={(value) => {
+    value;
+    // ^?
+    console.log(value);
+  }}
+/>;
+
+<GenericComponent<string>
+  options={["asdf", "test", "hello"]}
+  onChange={(value) => {
+    value;
+    // ^?
+    console.log(value);
+  }}
 />;
