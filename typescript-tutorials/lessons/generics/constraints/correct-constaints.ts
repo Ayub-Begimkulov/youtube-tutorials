@@ -1,11 +1,11 @@
 export {};
 
-function pushArrayIncorrect<T extends number[]>(arr: T, item: T[number]) {
+function pushArrayIncorrect<T extends unknown[]>(arr: T, item: T[number]) {
   arr.push(item);
   return arr;
 }
 
-function pushArray<T extends number>(arr: T[], item: T) {
+function pushArray<T>(arr: T[], item: T) {
   arr.push(item);
   return arr;
 }

@@ -14,7 +14,8 @@ function withCharCodesWrong<T>(value: T) {
   return [value, charCodes] as const;
 }
 
-withCharCodesWrong("asdf");
+const [str, charCodes] = withCharCodesWrong("asdf" as const);
+//     ^?
 // should be error! but works...
 withCharCodesWrong(["asdf", "test"]);
 
@@ -33,3 +34,5 @@ withCharCodes(["asdf", "test"]);
 //            ^^^^^^^^^^^^^^^^
 // Argument of type 'string[]' is not assignable
 // to parameter of type 'string'.ts(2345)
+
+console.log(str, charCodes);
