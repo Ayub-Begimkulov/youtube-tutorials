@@ -9,13 +9,13 @@ function callInWindow(this: Window, b: number) {
 }
 
 function thisAsArgument<Fn extends (this: any, ...args: any[]) => any>(fn: Fn) {
-  return function (thisArg: ThisType<Fn>, ...args: Parameters<Fn>) {
+  return function (thisArg: ThisParameterType<Fn>, ...args: Parameters<Fn>) {
     return fn.apply(thisArg, args);
   };
 }
 
 const callInWindowThisAsArgument = thisAsArgument(callInWindow);
-
+//    ^?
 class TestClass {
   constructor() {
     callInWindow(5);

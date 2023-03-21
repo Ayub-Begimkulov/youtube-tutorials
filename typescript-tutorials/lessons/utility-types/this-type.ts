@@ -7,7 +7,7 @@ interface DefineComponentOptions<
   Methods extends Record<string, AnyFunction>
 > {
   data: Data;
-  methods: Methods;
+  methods: Methods & ThisType<Data & Methods>;
 }
 
 function defineComponent<
@@ -19,12 +19,17 @@ function defineComponent<
   return { ...data, ...methods };
 }
 
-const componentInstance = defineComponent({
+const instance = defineComponent({
   data: {
     count: 0,
+    loading: false,
   },
   methods: {
-    increment() {},
-    decrement() {},
+    increment() {
+      this.count++;
+    },
+    decrement() {
+      this.count--;
+    },
   },
 });
