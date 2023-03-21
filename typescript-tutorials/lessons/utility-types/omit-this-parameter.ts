@@ -1,5 +1,8 @@
 export {};
 
+type Test = OmitThisParameter<(this: Window, a: string) => void>;
+//   ^?
+
 function callInWindow(this: Window, b: number) {
   console.log(this.innerWidth);
   return b;
@@ -15,4 +18,5 @@ function bindWindow<Fn extends (this: Window, ...args: any[]) => any>(
 const boundCall = bindWindow(callInWindow);
 //    ^?
 
-console.log(boundCall);
+declare const test: Test;
+console.log(boundCall, test);
