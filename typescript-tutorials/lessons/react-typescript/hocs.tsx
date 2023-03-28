@@ -21,13 +21,18 @@ function withRouter<Props extends { history?: Window["history"] }>(
     const componentProps = {
       ...props,
       history: window.history,
-    };
+    } as Props;
 
-    return <Component {...(componentProps as Props)} />;
+    return <Component {...componentProps} />;
   };
+
   const name = Component.displayName || Component.name || "Component";
+
   WrappedComponent.displayName = `withRouter(${name})`;
+
   return WrappedComponent;
 }
 
 export const HOCComponent = withRouter(Component);
+
+<HOCComponent onClick={() => {}} />;

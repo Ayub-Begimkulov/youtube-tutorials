@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { forwardRef, memo } from "react";
 
 interface GenericComponentProps<Value> {
   id: number;
@@ -40,3 +40,35 @@ const TypedMemoGenericComponent2 = typedMemo(GenericComponent, (prev, next) => {
 });
 
 <TypedMemoGenericComponent2<string> title="asdf" id={5} value="asdf" />;
+
+// =============
+
+function GenericComponent2<Value>(
+  props: GenericComponentProps<Value>,
+  ref: React.Ref<HTMLDivElement>
+) {
+  console.log(props);
+  return <div ref={ref}></div>;
+}
+
+const ForwardRefGenericComponent = forwardRef(GenericComponent2);
+// React.ForwardRefExoticComponent<GenericComponentProps<unknown> & React.RefAttributes<HTMLDivElement>>
+
+<ForwardRefGenericComponent<number> />;
+//                          ^^^^^^
+// Expected 0 type arguments, but got 1.ts(2558)
+
+const typedForwardRef: <RefValue, Props extends object = {}>(
+  render: (props: Props, ref: React.Ref<RefValue>) => React.ReactElement | null
+) => (
+  props: Props & React.RefAttributes<RefValue>
+) => React.ReactElement | null = forwardRef as any;
+
+const TypedForwardRefGenericComponent = typedForwardRef(GenericComponent2);
+
+<TypedForwardRefGenericComponent<string>
+  ref={{ current: null }}
+  id={5}
+  title="asdf"
+  value="asdf"
+/>;

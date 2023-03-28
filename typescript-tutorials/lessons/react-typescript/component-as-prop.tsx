@@ -8,7 +8,7 @@ type ButtonProps<Type extends ButtonElements | React.ComponentType> = {
 } & ButtonAdditionalProps<Type>;
 
 type ButtonAdditionalProps<Type extends ButtonElements | React.ComponentType> =
-  Type extends ButtonElements
+  Type extends keyof JSX.IntrinsicElements
     ? JSX.IntrinsicElements[Type]
     : React.ComponentPropsWithoutRef<Type>;
 
