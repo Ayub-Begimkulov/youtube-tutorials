@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-function Component() {
+export function Simple() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -9,5 +9,3 @@ function Component() {
 
   return <div ref={ref}>I'm a div</div>;
 }
-
-<Component />;
