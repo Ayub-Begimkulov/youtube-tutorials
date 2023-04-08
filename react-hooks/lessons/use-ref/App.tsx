@@ -6,6 +6,8 @@ import { UncontrolledFormComponentSolution } from "./slides/uncontrolled-form-so
 import { UseWindowEventExample } from "./slides/use-widnow-event";
 import { UseWindowEventExampleWithEvent } from "./slides/use-widnow-event-with-event";
 import { UseIsMountedExample } from "./slides/use-is-mounted";
+import { CustomDepsManagementExample } from "./slides/cutom-deps-managment";
+import { CustomDepsManagementSolution } from "./slides/cutom-deps-managment-solution";
 
 const examplesMap = {
   simple: Simple,
@@ -15,6 +17,8 @@ const examplesMap = {
   useWindowEvent: UseWindowEventExample,
   UseWindowEventExampleWithEvent: UseWindowEventExampleWithEvent,
   useIsMounted: UseIsMountedExample,
+  customDepsManagement: CustomDepsManagementExample,
+  CustomDepsManagementSolution: CustomDepsManagementSolution,
 };
 
 type Example = keyof typeof examplesMap;

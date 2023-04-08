@@ -20,7 +20,7 @@ function useWindowEvent(type: string, cb: (event: Event) => void) {
     window.addEventListener(type, handler);
 
     return () => window.removeEventListener(type, handler);
-  }, [latestCb]);
+  }, [type, latestCb]);
 }
 
 export function UseWindowEventExample() {
