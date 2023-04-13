@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:use-ref": "vite ./lessons/use-ref"
+    "start:use-ref": "vite ./lessons/use-ref",
+    "start:use-state-wrappers": "vite ./lessons/use-state-wrappers"
   },
   "keywords": [],
   "author": "",
