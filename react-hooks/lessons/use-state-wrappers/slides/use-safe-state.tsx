@@ -26,10 +26,8 @@ export function useSafeState<S>(initialValue: (() => S) | S) {
     setValue(newValue);
   }, []);
 
-  return [value, setState];
+  return [value, setState] as const;
 }
-
-const result = useSafeState(5);
 
 interface TodoItem {
   userId: number;
