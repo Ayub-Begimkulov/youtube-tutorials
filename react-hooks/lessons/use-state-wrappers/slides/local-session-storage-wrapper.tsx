@@ -69,7 +69,10 @@ export class PersistentStorage {
   }
 
   get length() {
-    return this.storage?.length;
+    if (!this.storage) {
+      return 0;
+    }
+    return this.storage.length;
   }
 }
 
