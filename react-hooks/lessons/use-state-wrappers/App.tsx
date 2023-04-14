@@ -12,7 +12,7 @@ const examplesMap = {
 type Example = keyof typeof examplesMap;
 
 export const App = () => {
-  const [example, setExample] = useState<Example>("useSafeState");
+  const [example, setExample] = useState<Example>("useSearchParamsState");
 
   const Component = examplesMap[example];
 

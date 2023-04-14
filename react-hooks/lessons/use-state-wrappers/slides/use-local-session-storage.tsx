@@ -5,10 +5,7 @@ import {
   localStorageWrapper,
   sessionStorageWrapper,
 } from "./local-session-storage-wrapper";
-
-function isFunction(value: unknown): value is (...args: any[]) => any {
-  return typeof value === "function";
-}
+import { isFunction } from "../utils";
 
 function createPersistentStateHooks(storage: PersistentStorage) {
   return function usePersistentState<Value>(

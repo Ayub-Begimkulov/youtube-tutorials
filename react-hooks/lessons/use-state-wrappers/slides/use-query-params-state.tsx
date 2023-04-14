@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useEvent } from "../../use-ref/slides/use-event";
+import { isFunction } from "../utils";
 
 function getSearchParam(search: string, param: string) {
   const searchParams = new URLSearchParams(search);
@@ -32,10 +33,9 @@ function useSearchParamsState<Value>({
     return initialValue;
   });
 
-  const updateValue = useEvent((newValue) => {
+  const updateValue = useEvent((newValue: React.SetStateAction<Value>) => {
     const search = window.location.search;
-    const actualNewValue =
-      typeof newValue === "function" ? newValue(value) : newValue;
+    const actualNewValue = isFunction(newValue) ? newValue(value) : newValue;
 
     setValue(actualNewValue);
 
