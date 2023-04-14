@@ -6,6 +6,7 @@ type MapInitialEntries<Key, Value> =
 
 function useMap<Key, Value>(initialEntries?: MapInitialEntries<Key, Value>) {
   const [version, updateVersion] = useReducer((v) => v + 1, 0);
+
   const map = useMemo(() => {
     const entries =
       typeof initialEntries === "function" ? initialEntries() : initialEntries;
@@ -33,6 +34,9 @@ function useMap<Key, Value>(initialEntries?: MapInitialEntries<Key, Value>) {
         updateVersion();
         return map.clear();
       },
+      forEach(cb: (value: Value, key: Key) => void) {
+        map.forEach(cb);
+      },
       get size() {
         return map.size;
       },
@@ -48,6 +52,7 @@ function useSet<Value>(
   initialItems?: Iterable<Value> | (() => Iterable<Value>)
 ) {
   const [version, updateVersion] = useReducer((v) => v + 1, 0);
+
   const set = useMemo(() => {
     const entries =
       typeof initialItems === "function" ? initialItems() : initialItems;
@@ -73,6 +78,9 @@ function useSet<Value>(
         updateVersion();
         set.clear();
       },
+      forEach(cb: (item: Value) => void) {
+        set.forEach(cb);
+      },
       get size() {
         return set.size;
       },
@@ -93,9 +101,5 @@ export function UseMapSetExample() {
 
   console.log(map, set);
 
-  return (
-    <div>
-      <input type="text" />
-    </div>
-  );
+  return <div></div>;
 }
