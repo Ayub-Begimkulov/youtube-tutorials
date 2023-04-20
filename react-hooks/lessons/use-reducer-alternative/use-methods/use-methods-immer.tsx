@@ -67,19 +67,52 @@ function useMethods<State, Methods extends AnyMethodsMap<State>>(
   return [state, methods as BoundMethods<Methods>];
 }
 
-const [state, methods] = useMethods(() => ({
-  initialState: {
-    count: 5,
-  },
-  methods: {
-    increment(state, amount: number) {
-      return { ...state, count: state.count - amount };
+export function useUndoStateReducer<T>(initialValue: T, maxHistory = 10) {
+  const [{ value }, methods] = useMethods({
+    initialState: {
+      value: initialValue,
+      previous: [] as T[],
+      next: [] as T[],
     },
-    decrement(state, amount: number) {
-      return { ...state, count: state.count - amount };
+    methods: {
+      update(state, newValue: T) {
+        if (state.previous.length === maxHistory) {
+          state.previous.shift();
+        }
+
+        state.previous.push(state.value);
+        state.next = [];
+        state.value = newValue;
+      },
+      undo(state) {
+        if (state.previous.length === 0) {
+          return;
+        }
+
+        const previousValue = state.previous.pop()!;
+
+        if (state.next.length === maxHistory) {
+          state.next.pop();
+        }
+        state.next.unshift(state.value);
+
+        state.value = previousValue;
+      },
+      redo(state) {
+        if (state.next.length === 0) {
+          return;
+        }
+
+        if (state.previous.length === maxHistory) {
+          state.previous.shift();
+        }
+        state.previous.push(state.value);
+
+        state.value = state.next[0];
+        state.next = state.next.slice(1);
+      },
     },
-    test(state) {
-      state.count++;
-    },
-  },
-}));
+  });
+
+  return [value, methods.update, methods.undo, methods.redo];
+}
