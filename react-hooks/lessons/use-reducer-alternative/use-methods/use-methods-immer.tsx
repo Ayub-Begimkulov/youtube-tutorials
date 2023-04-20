@@ -39,13 +39,14 @@ type BoundMethods<Methods extends AnyMethodsMap<any>> = {
 function useMethods<State, Methods extends AnyMethodsMap<State>>(
   options: UseMethodsInit<State, Methods>
 ): [State, BoundMethods<Methods>] {
-  // create options only 1 time
-  const actualOptions = useMemo(
+  const initialOptions = useMemo(
     () => (typeof options === "object" ? options : options()),
     []
   );
 
   const reducer = (state: State, action: AnyAction) => {
+    const actualOptions = typeof options === "object" ? options : options();
+
     const actionReducer = actualOptions.methods[action.type];
     const newState = produce(state, (draft: State) =>
       actionReducer(draft, action.payload)
@@ -54,15 +55,15 @@ function useMethods<State, Methods extends AnyMethodsMap<State>>(
     return newState;
   };
 
-  const [state, dispatch] = useReducer(reducer, actualOptions.initialState);
+  const [state, dispatch] = useReducer(reducer, initialOptions.initialState);
 
   const methods = useMemo(() => {
     const result: Record<string, Function> = {};
-    for (const key in actualOptions.methods) {
+    for (const key in initialOptions.methods) {
       result[key] = (payload?: unknown) => dispatch({ type: key, payload });
     }
     return result;
-  }, [actualOptions]);
+  }, [initialOptions]);
 
   return [state, methods as BoundMethods<Methods>];
 }
