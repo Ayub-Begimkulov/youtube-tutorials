@@ -11,7 +11,7 @@ const examplesMap = {
 type Example = keyof typeof examplesMap;
 
 export const App = () => {
-  const [example, setExample] = useState<Example>("zoom");
+  const [example, setExample] = useState<Example>("input");
 
   const Component = examplesMap[example];
 

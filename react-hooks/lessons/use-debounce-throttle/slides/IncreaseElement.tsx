@@ -20,6 +20,7 @@ export const IncreaseElement = () => {
   const [scale, setScale] = useState(1);
 
   const handleWheel = (event: React.WheelEvent) => {
+    console.log("wheel");
     let newScale = scale + event.deltaY * DELTA_MULTIPLIER;
 
     newScale = Math.min(Math.max(0.5, newScale), 4);

@@ -16,7 +16,7 @@ export const SaveableTextInput = () => {
   };
 
   useEffect(() => {
-    storageAPI.read().then(() => {
+    storageAPI.read().then((text) => {
       if (isTextEdited.current) {
         return;
       }
@@ -26,7 +26,7 @@ export const SaveableTextInput = () => {
 
   return (
     <div>
-      <textarea onChange={handleUpdate} rows={30} cols={80} />
+      <textarea value={text} onChange={handleUpdate} rows={30} cols={80} />
     </div>
   );
 };
