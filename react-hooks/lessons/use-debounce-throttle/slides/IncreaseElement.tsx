@@ -1,5 +1,4 @@
-import { useMemo, useState } from "react";
-import { throttle } from "../utils";
+import { useState } from "react";
 
 const DELTA_MULTIPLIER = -0.01;
 const wrapperStyles = {
@@ -20,19 +19,13 @@ const itemStyles = {
 export const IncreaseElement = () => {
   const [scale, setScale] = useState(1);
 
-  const handleWheel = useMemo(
-    () =>
-      throttle((event: React.WheelEvent) => {
-        event.preventDefault();
+  const handleWheel = (event: React.WheelEvent) => {
+    let newScale = scale + event.deltaY * DELTA_MULTIPLIER;
 
-        let newScale = scale + event.deltaY * DELTA_MULTIPLIER;
+    newScale = Math.min(Math.max(0.5, newScale), 4);
 
-        newScale = Math.min(Math.max(0.5, newScale), 4);
-
-        setScale(newScale);
-      }),
-    []
-  );
+    setScale(newScale);
+  };
 
   return (
     <div style={wrapperStyles}>
