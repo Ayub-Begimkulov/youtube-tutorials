@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { storageAPI } from "../api/storage";
-import { debounce } from "../utils";
 
 export const SaveableTextInput = () => {
   const [text, setText] = useState("");
@@ -12,13 +11,9 @@ export const SaveableTextInput = () => {
     persistCurrentText(e.target.value);
   };
 
-  const persistCurrentText = useMemo(
-    () =>
-      debounce((text: string) => {
-        storageAPI.save(text);
-      }, 500),
-    []
-  );
+  const persistCurrentText = (text: string) => {
+    storageAPI.save(text);
+  };
 
   useEffect(() => {
     storageAPI.read().then(() => {
