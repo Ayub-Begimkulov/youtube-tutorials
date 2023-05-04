@@ -3,6 +3,7 @@ export function rafThrottle<T extends (...args: any[]) => any>(fn: T) {
 
   function throttled(...args: Parameters<T>) {
     if (typeof rafId === "number") {
+      console.log("cancel");
       return;
     }
 

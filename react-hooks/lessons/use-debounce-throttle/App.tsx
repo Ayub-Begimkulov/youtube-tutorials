@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import { SaveableTextInput } from "./slides/SaveableTextInput";
-import { IncreaseElement } from "./slides/IncreaseElement";
+import { SaveableTextInput } from "./examples/SaveableTextInput";
+import { IncreaseElement } from "./examples/IncreaseElement";
 
 const examplesMap = {
   input: SaveableTextInput,
@@ -11,7 +11,7 @@ const examplesMap = {
 type Example = keyof typeof examplesMap;
 
 export const App = () => {
-  const [example, setExample] = useState<Example>("input");
+  const [example, setExample] = useState<Example>("zoom");
 
   const Component = examplesMap[example];
 
