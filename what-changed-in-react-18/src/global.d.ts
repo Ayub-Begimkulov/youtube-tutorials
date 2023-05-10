@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly OLD_RENDER: boolean;
+  readonly VITE_OLD_RENDER: boolean;
 }

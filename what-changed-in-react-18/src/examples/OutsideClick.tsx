@@ -18,10 +18,7 @@ function useOutsideClick(
 
       console.log("outside click");
 
-      if (
-        e.target instanceof Element &&
-        !elementRef.current.contains(e.target)
-      ) {
+      if (e.target instanceof Node && !elementRef.current.contains(e.target)) {
         eventHandler(e);
       }
     };

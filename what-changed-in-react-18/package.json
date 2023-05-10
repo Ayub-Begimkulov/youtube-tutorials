@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start-new": "OLD_RENDER=false vite",
-    "start-old": "OLD_RENDER=true vite"
+    "start-new": "VITE_OLD_RENDER=false vite",
+    "start-old": "VITE_OLD_RENDER=true vite"
   },
   "keywords": [],
   "author": "",
