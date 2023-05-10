@@ -1,21 +1,12 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-
-function useLatest<Value>(value: Value) {
-  const valueRef = useRef(value);
-
-  useLayoutEffect(() => {
-    valueRef.current = value;
-  });
-
-  return valueRef;
-}
+import { useEffect, useRef, useState } from "react";
+import { useEvent } from "../hooks/use-event";
 
 function useOutsideClick(
   elementRef: React.RefObject<HTMLElement>,
   handler: (event: MouseEvent) => void,
   attached = true
 ) {
-  const latestHandler = useLatest(handler);
+  const eventHandler = useEvent(handler);
 
   useEffect(() => {
     if (!attached) return;
@@ -31,7 +22,7 @@ function useOutsideClick(
         e.target instanceof Element &&
         !elementRef.current.contains(e.target)
       ) {
-        latestHandler.current(e);
+        eventHandler(e);
       }
     };
 
@@ -40,7 +31,7 @@ function useOutsideClick(
     return () => {
       document.removeEventListener("click", handleClick);
     };
-  }, [elementRef, latestHandler, attached]);
+  }, [elementRef, eventHandler, attached]);
 }
 
 interface TooltipProps {
