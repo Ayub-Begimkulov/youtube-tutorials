@@ -6,7 +6,8 @@
   "scripts": {
     "start:use-ref": "vite ./lessons/use-ref",
     "start:use-state-wrappers": "vite ./lessons/use-state-wrappers",
-    "start:use-debounce": "vite ./lessons/use-debounce-throttle"
+    "start:use-debounce": "vite ./lessons/use-debounce-throttle",
+    "start:use-outside-click": "vite ./lessons/use-outside-click"
   },
   "keywords": [],
   "author": "",

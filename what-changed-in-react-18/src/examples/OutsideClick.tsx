@@ -1,0 +1,94 @@
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+
+function useLatest<Value>(value: Value) {
+  const valueRef = useRef(value);
+
+  useLayoutEffect(() => {
+    valueRef.current = value;
+  });
+
+  return valueRef;
+}
+
+function useOutsideClick(
+  elementRef: React.RefObject<HTMLElement>,
+  handler: (event: MouseEvent) => void,
+  attached = true
+) {
+  const latestHandler = useLatest(handler);
+
+  useEffect(() => {
+    if (!attached) return;
+
+    console.log("attach event listener ");
+
+    const handleClick = (e: MouseEvent) => {
+      if (!elementRef.current) return;
+
+      console.log("outside click");
+
+      if (
+        e.target instanceof Element &&
+        !elementRef.current.contains(e.target)
+      ) {
+        latestHandler.current(e);
+      }
+    };
+
+    document.addEventListener("click", handleClick);
+
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, [elementRef, latestHandler, attached]);
+}
+
+interface TooltipProps {
+  opened: boolean;
+  onClose: () => void;
+}
+
+function Tooltip({ opened, onClose }: TooltipProps) {
+  const tooltipRef = useRef(null);
+
+  useOutsideClick(tooltipRef, onClose, opened);
+
+  console.log("render tooltip, isOpened = ", opened);
+
+  if (!opened) return null;
+
+  return (
+    <div ref={tooltipRef} className="tooltip">
+      <div>Some Text</div>
+    </div>
+  );
+}
+
+export function OutsideClick() {
+  const [opened, setOpened] = useState(false);
+
+  const onClose = () => {
+    setOpened(false);
+  };
+
+  return (
+    <div className="tooltip-container">
+      <Tooltip opened={opened} onClose={onClose} />
+      <button
+        className="tooltip-trigger"
+        onClick={() => {
+          console.log("button click");
+          queueMicrotask(() => {
+            console.log("microtask before update");
+          });
+          setOpened((v) => !v);
+          queueMicrotask(() => {
+            console.log("microtask after update");
+          });
+        }}
+      >
+        Click to open tooltip
+      </button>
+    </div>
+  );
+}
