@@ -14,6 +14,7 @@ function renderOld() {
   ReactDOMOld.render(<App />, rootElement);
 }
 
-const renderMethod = import.meta.env.VITE_OLD_RENDER ? renderOld : renderNew;
+const renderMethod =
+  import.meta.env.VITE_OLD_RENDER === "true" ? renderOld : renderNew;
 
 renderMethod();
