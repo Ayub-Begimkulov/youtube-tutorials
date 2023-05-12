@@ -213,7 +213,6 @@ function Modal({ opened, onClose }: ModalProps) {
     elementRef: modalRef,
     onOutsideClick: onClose,
   });
-  // useOutsideClick({ elementRef: modalRef, onOutsideClick: onClose });
 
   if (!opened) {
     return null;
