@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 
 import { modalRoot } from "../constants";
-import { useLayerManager } from "./useLayerManager";
+import { useOutsideClick } from "./useOutsideClick";
 
 function ButtonWithDropdown() {
   const [opened, setOpened] = useState(false);
@@ -11,7 +11,7 @@ function ButtonWithDropdown() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropDownRef = useRef<HTMLDivElement>(null);
 
-  const { renderLayer } = useLayerManager({
+  useOutsideClick({
     elementRef: dropDownRef,
     triggerRef: buttonRef,
     onOutsideClick: () => {
@@ -39,23 +39,21 @@ function ButtonWithDropdown() {
         Open Dropdown
       </button>
       {opened &&
-        renderLayer(
-          ReactDOM.createPortal(
-            <div
-              ref={dropDownRef}
-              style={{
-                position: "absolute",
-                ...position,
-                padding: 12,
-                background: "#212121",
-                borderRadius: 8,
-              }}
-            >
-              <div>A</div>
-              <div>B</div>
-            </div>,
-            modalRoot
-          )
+        ReactDOM.createPortal(
+          <div
+            ref={dropDownRef}
+            style={{
+              position: "absolute",
+              ...position,
+              padding: 12,
+              background: "#212121",
+              borderRadius: 8,
+            }}
+          >
+            <div>A</div>
+            <div>B</div>
+          </div>,
+          modalRoot
         )}
     </>
   );
@@ -69,7 +67,7 @@ interface ModalProps {
 function Modal({ opened, onClose }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const { renderLayer } = useLayerManager({
+  useOutsideClick({
     elementRef: modalRef,
     onOutsideClick: onClose,
   });
@@ -78,27 +76,25 @@ function Modal({ opened, onClose }: ModalProps) {
     return null;
   }
 
-  return renderLayer(
-    ReactDOM.createPortal(
-      <div
-        ref={modalRef}
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate3d(-50%, -50%, 0)",
-          width: 400,
-          height: 300,
-          background: "#515151",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <ButtonWithDropdown />
-      </div>,
-      modalRoot
-    )
+  return ReactDOM.createPortal(
+    <div
+      ref={modalRef}
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate3d(-50%, -50%, 0)",
+        width: 400,
+        height: 300,
+        background: "#515151",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <ButtonWithDropdown />
+    </div>,
+    modalRoot
   );
 }
 
