@@ -191,10 +191,6 @@ describe("effect", () => {
 });
 
 describe("computed", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it("should return updated value", () => {
     const num = signal(0);
     const cNum = computed(() => num.value);
@@ -231,7 +227,7 @@ describe("computed", () => {
     expect(getter).toHaveBeenCalledTimes(2);
   });
 
-  it.only("should trigger effect", () => {
+  it("should trigger effect", () => {
     const num = signal(-1);
     const cNum = computed(() => {
       return num.value;

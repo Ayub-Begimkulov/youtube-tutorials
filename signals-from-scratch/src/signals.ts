@@ -1,6 +1,4 @@
-let isInsideBatchContext = false;
 let runningEffect: EffectCb | null = null;
-const batchQueue: VoidFunction[] = [];
 
 interface EffectCb {
   (): void;
@@ -50,13 +48,6 @@ class SignalImpl<Value> implements Signal<Value> {
   }
 
   runDependencies() {
-    if (isInsideBatchContext) {
-      batchQueue.push(() => {
-        this.runDependencies();
-      });
-      return;
-    }
-
     const depsToRun = new Set(this.deps);
     depsToRun.forEach((effectCb) => effectCb());
   }
