@@ -1,4 +1,4 @@
-import { signal, effect, computed } from "./signals";
+import { signal, effect, computed } from "./solution";
 
 describe("effect", () => {
   it("should run effects when data changes", () => {
@@ -117,6 +117,34 @@ describe("effect", () => {
     expect(spy2).toBeCalledTimes(3);
   });
 
+  it("should continue adding dependencies after recursion", () => {
+    const num1 = signal(0);
+    const num2 = signal(1);
+    const num3 = signal(0);
+
+    const spy1 = jest.fn(() => {
+      num1.value = num2.value * 2;
+    });
+    const spy2 = jest.fn(() => {
+      num2.value = num1.value * 2;
+      num3.value;
+    });
+
+    effect(spy1);
+    effect(spy2);
+
+    expect(num1.value).toBe(8);
+    expect(num2.value).toBe(4);
+
+    expect(spy1).toBeCalledTimes(2);
+    expect(spy2).toBeCalledTimes(1);
+
+    num3.value = 10;
+
+    expect(spy1).toBeCalledTimes(3);
+    expect(spy2).toBeCalledTimes(2);
+  });
+
   it("should discover new branches while running automatically", () => {
     const num1 = signal(0);
     const num2 = signal(0);
@@ -158,9 +186,11 @@ describe("effect", () => {
 
     expect(dummy).toBe("value");
     expect(conditionalSpy).toBeCalledTimes(1);
+
     shouldRun.value = false;
     expect(dummy).toBe("other");
     expect(conditionalSpy).toBeCalledTimes(2);
+
     string.value = "value2";
     expect(dummy).toBe("other");
     expect(conditionalSpy).toBeCalledTimes(2);
