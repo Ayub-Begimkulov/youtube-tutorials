@@ -27,7 +27,7 @@ export function NullProblemPlainRefs() {
 
   useEffect(() => {
     console.log({ ref1: ref1.current, ref2: ref2.current });
-  }, [isFirstRef]);
+  }, [count]);
 
   return (
     <div>

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { forwardRef, useCallback } from "react";
 
 type RefItem<T> =
@@ -34,7 +34,18 @@ const Input = forwardRef(function Input(
   props: InputProps,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
-  return <input {...props} ref={ref} />;
+  const inputRef = useRef<HTMLInputElement>(null);
+  const combinedInputRef = useCombinedRef(ref, inputRef);
+
+  useEffect(() => {
+    if (!inputRef.current) {
+      return;
+    }
+
+    console.log(inputRef.current.getBoundingClientRect());
+  }, []);
+
+  return <input {...props} ref={combinedInputRef} />;
 });
 
 export function UsageCombine() {
@@ -46,7 +57,7 @@ export function UsageCombine() {
 
   return (
     <div>
-      <Input />
+      <Input ref={inputRef} />
       <button onClick={focus}>Focus</button>
     </div>
   );

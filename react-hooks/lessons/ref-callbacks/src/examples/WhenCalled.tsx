@@ -14,14 +14,14 @@ export function WhenCalled() {
   }, []);
 
   return (
-    <>
-      <div ref={cbRef}>I'm div</div>
+    <div>
       <Child />
-    </>
+      <div ref={cbRef}>I'm div</div>
+    </div>
   );
 }
 
-export function Child() {
+function Child() {
   const cbRef = useCallback((element: HTMLElement | null) => {
     console.log("child callback ref", element);
   }, []);
@@ -34,5 +34,5 @@ export function Child() {
     console.log("child layout effect");
   }, []);
 
-  return <div ref={cbRef}>I'm div</div>;
+  return <div ref={cbRef}>I'm child div</div>;
 }

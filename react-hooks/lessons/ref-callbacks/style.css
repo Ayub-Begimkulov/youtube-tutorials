@@ -24,7 +24,7 @@ textarea {
 #root {
   display: flex;
   flex-direction: column;
-  padding: 32px;
+  padding: 18px;
 }
 
 button {
