@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>animate height</title>
+  </head>
+  <body>
+    <div>
+      <button data-id="button">Animate</button>
+      <div
+        data-id="animation-element"
+        style="
+          background-color: rgb(180, 180, 180);
+          width: 300px;
+          transition: height 500ms ease;
+          height: 0;
+        "
+      ></div>
+      <div id="test-root"></div>
+      <script>
+        const button = document.querySelector("[data-id=button]");
+        const animationElement = document.querySelector(
+          "[data-id='animation-element']"
+        );
+
+        button.addEventListener("click", () => {
+          const currentHeight = parseInt(animationElement.style.height, 10);
+
+          const newHeight = currentHeight === 1_000 ? 0 : 1_000;
+
+          animationElement.style.height = `${newHeight}px`;
+        });
+
+        const testRoot = document.getElementById("test-root");
+
+        function appendTestChildren(count) {
+          for (let i = 0; i < count; i++) {
+            const div = document.createElement("div");
+            div.textContent = getRandomText();
+            testRoot.appendChild(div);
+          }
+        }
+
+        function getRandomText() {
+          return Math.random().toString(36).slice(2);
+        }
+      </script>
+    </div>
+  </body>
+</html>

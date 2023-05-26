@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>animate left</title>
+  </head>
+  <body>
+    <div>
+      <button data-id="button">Animate</button>
+      <div
+        data-id="animation-element"
+        style="
+          background-color: rgb(180, 180, 180);
+          width: 300px;
+          position: absolute;
+          top: 200px;
+          left: 5px;
+          transition: left 500ms ease;
+          height: 300px;
+        "
+      ></div>
+    </div>
+    <div id="test-root"></div>
+    <script>
+      const button = document.querySelector("[data-id=button]");
+      const animationElement = document.querySelector(
+        "[data-id='animation-element']"
+      );
+
+      button.addEventListener("click", () => {
+        const currentLeft = parseInt(animationElement.style.left, 10);
+
+        const newLeft = currentLeft === 500 ? 5 : 500;
+
+        animationElement.style.left = `${newLeft}px`;
+      });
+
+      const testRoot = document.getElementById("test-root");
+
+      function appendTestChildren(count) {
+        for (let i = 0; i < count; i++) {
+          const div = document.createElement("div");
+          div.textContent = getRandomText();
+          testRoot.appendChild(div);
+        }
+      }
+
+      function getRandomText() {
+        return Math.random().toString(36).slice(2);
+      }
+    </script>
+  </body>
+</html>

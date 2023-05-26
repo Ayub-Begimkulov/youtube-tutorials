@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>animate transform</title>
+  </head>
+  <body>
+    <div>
+      <button data-id="button">Animate</button>
+      <div
+        data-id="animation-element"
+        style="
+          background-color: rgb(180, 180, 180);
+          width: 300px;
+          position: absolute;
+          top: 200px;
+          left: 5px;
+          transform: translateX(0);
+          transition: transform 500ms ease;
+          height: 300px;
+        "
+      ></div>
+    </div>
+    <div id="test-root"></div>
+    <script>
+      const button = document.querySelector("[data-id=button]");
+      const animationElement = document.querySelector(
+        "[data-id='animation-element']"
+      );
+
+      let moved = false;
+      button.addEventListener("click", () => {
+        const newTranslate = moved ? 0 : 500;
+        moved = !moved;
+
+        animationElement.style.transform = `translateX(${newTranslate}px)`;
+      });
+      const testRoot = document.getElementById("test-root");
+
+      function appendTestChildren(count) {
+        for (let i = 0; i < count; i++) {
+          const div = document.createElement("div");
+          div.textContent = getRandomText();
+          testRoot.appendChild(div);
+        }
+      }
+
+      function getRandomText() {
+        return Math.random().toString(36).slice(2);
+      }
+    </script>
+  </body>
+</html>
