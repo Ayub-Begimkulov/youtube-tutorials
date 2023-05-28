@@ -20,3 +20,6 @@ https://stackoverflow.com/questions/59809832/after-what-exact-number-of-executio
 
 Статья про оптимизации V8:
 https://web.dev/speed-v8/
+
+Статья про ускорение react-table:
+https://jpcamara.com/2023/03/07/making-tanstack-table.html
