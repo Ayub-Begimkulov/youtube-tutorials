@@ -1,4 +1,4 @@
-function multiplyArray1(array) {
+function multiplyArrayCommon(array) {
   const result = [];
 
   for (let i = 0, l = array.length; i < l; i++) {
@@ -8,11 +8,11 @@ function multiplyArray1(array) {
   return result;
 }
 
-function multiplyArray2(array) {
-  const result = new Array(array.length);
+function multiplyArrayImmutable(array) {
+  let result = [];
 
   for (let i = 0, l = array.length; i < l; i++) {
-    result[i] = array[i] * 2;
+    result = [...result, array[i] * 2];
   }
 
   return result;
@@ -21,12 +21,15 @@ function multiplyArray2(array) {
 const runTimes = parseInt(process.env.TIMES, 10) || 100;
 const arraySize = parseInt(process.env.SIZE, 10) || 10_000;
 const testFn =
-  process.env.TEST_NUMBER === "1" ? multiplyArray1 : multiplyArray2;
+  process.env.TEST_NUMBER === "1"
+    ? multiplyArrayCommon
+    : multiplyArrayImmutable;
 
 function runTest() {
   const before = performance.now();
+  const testArr = createNumberArray(arraySize);
   for (let i = 0; i < runTimes; i++) {
-    testFn(createNumberArray(arraySize));
+    testFn(testArr);
   }
   const after = performance.now();
 
