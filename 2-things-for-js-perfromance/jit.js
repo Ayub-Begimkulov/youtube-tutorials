@@ -28,7 +28,7 @@ function calculateCount2() {
 function calculateCount2Inner() {
   let count = 0;
 
-  for (let i = 0, l = 10_000; i < l; i++) {
+  for (let i = 0, l = iterations; i < l; i++) {
     count += i;
   }
 
