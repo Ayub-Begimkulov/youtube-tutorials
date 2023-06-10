@@ -8,6 +8,7 @@
     "start:use-state-wrappers": "vite ./lessons/use-state-wrappers",
     "start:use-debounce": "vite ./lessons/use-debounce-throttle",
     "start:use-outside-click": "vite ./lessons/use-outside-click",
+    "start:universal-ref": "vite ./lessons/universal-ref",
     "start:ref-callbacks": "vite ./lessons/ref-callbacks"
   },
   "keywords": [],
