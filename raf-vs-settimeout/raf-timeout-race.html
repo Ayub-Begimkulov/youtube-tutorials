@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>raf timeout race</title>
+  </head>
+  <body>
+    <script>
+      requestAnimationFrame(() => console.log("raf"));
+      setTimeout(() => console.log("timeout"));
+    </script>
+  </body>
+</html>

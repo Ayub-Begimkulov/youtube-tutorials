@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Raf vs SetTimeout</title>
+  </head>
+  <body>
+    <div id="test" class="item" style="background-color: black">ASDF</div>
+    <script>
+      const div = document.getElementById("test");
+
+      function animateSyncColor() {
+        div.style.color = "red";
+        div.style.transition = "all 1s ease";
+
+        div.style.color = "white";
+      }
+
+      function animateSync() {
+        div.style.height = "0px";
+
+        div.style.transition = "all 1s ease";
+
+        div.style.height = "500px";
+      }
+
+      function animateRaf(type) {
+        div.style.height = "0px";
+
+        div.style.transition = "all 1s ease";
+
+        requestAnimationFrame(() => {
+          div.style.height = "500px";
+        });
+      }
+
+      function animateNestedRaf(type) {
+        div.style.height = "0px";
+
+        div.style.transition = "all 1s ease";
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            div.style.height = "500px";
+          });
+        });
+      }
+
+      function animateTimeout(type) {
+        div.style.height = "0px";
+
+        div.style.transition = "all 1s ease";
+
+        setTimeout(() => {
+          div.style.height = "500px";
+        });
+      }
+    </script>
+  </body>
+</html>
