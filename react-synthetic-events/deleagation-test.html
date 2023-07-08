@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delegation test</title>
+  </head>
+  <link rel="stylesheet" href="./style.css" />
+  <body>
+    <div id="root"></div>
+  </body>
+  <script>
+    const root = document.getElementById("root");
+
+    function createNodesAndAddListener(count) {
+      const start = performance.now();
+
+      for (let i = 0; i < count; i++) {
+        const div = document.createElement("div");
+        div.textContent = Math.random().toString(36).slice(2);
+        addListener(div, "click", (e) => {
+          console.log(e.target.textContent);
+        });
+        root.appendChild(div);
+      }
+
+      const end = performance.now();
+
+      console.log(`created ${count} elements in ${end - start}ms`);
+    }
+
+    function addListener(target, type, listener) {
+      target.addEventListener(type, listener);
+    }
+
+    function createNodesAndAddListenerDelegated(count) {
+      const start = performance.now();
+
+      for (let i = 0; i < count; i++) {
+        const div = document.createElement("div");
+        div.textContent = Math.random().toString(36).slice(2);
+        addListenerDelegated(div, "click", (e) => {
+          console.log(e.target.textContent);
+        });
+        root.appendChild(div);
+      }
+
+      const end = performance.now();
+
+      console.log(`created ${count} elements in ${end - start}ms`);
+    }
+
+    const nodeToListenersMap = new Map();
+
+    function addListenerDelegated(target, type, listener) {
+      ensureRootHasListener(root, type);
+
+      let listenersMap = nodeToListenersMap.get(target);
+
+      if (!listenersMap) {
+        nodeToListenersMap.set(target, (listenersMap = new Map()));
+      }
+
+      let listenersForType = listenersMap.get(type);
+
+      if (!listenersForType) {
+        listenersMap.set(type, (listenersForType = []));
+      }
+
+      listenersForType.push(listener);
+    }
+
+    const rootListenersMap = new Map();
+
+    function ensureRootHasListener(root, type) {
+      if (rootListenersMap.get(type)) {
+        return;
+      }
+
+      rootListenersMap.set(type, true);
+
+      root.addEventListener(type, (e) => {
+        let current = e.target;
+
+        while (!nodeToListenersMap.has(current)) {
+          current = current.parentNode;
+        }
+
+        if (current === null) {
+          return;
+        }
+
+        const listenerMap = nodeToListenersMap.get(current);
+        const listeners = listenerMap.get(type);
+
+        listeners?.forEach((f) => f(e));
+      });
+    }
+  </script>
+</html>

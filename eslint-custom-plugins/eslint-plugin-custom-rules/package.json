@@ -1,0 +1,16 @@
+{
+  "name": "eslint-plugin-custom-rules",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rm -rf ./dist && tsc -p ./tsconfig.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@typescript-eslint/utils": "^5.61.0",
+    "typescript": "^5.1.6"
+  }
+}

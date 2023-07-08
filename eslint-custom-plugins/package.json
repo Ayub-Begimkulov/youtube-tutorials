@@ -1,0 +1,20 @@
+{
+  "name": "eslint-custom-plugins",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm --prefix eslint-plugin-custom-rules run build && npm i -D file:eslint-plugin-custom-rules && eslint --config ./.eslintrc.js ./src"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/parser": "^5.61.0",
+    "@typescript-eslint/utils": "^5.61.0",
+    "eslint": "^8.44.0",
+    "eslint-plugin-custom-rules": "file:eslint-plugin-custom-rules",
+    "typescript": "^5.1.6"
+  }
+}

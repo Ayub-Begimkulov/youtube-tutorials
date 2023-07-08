@@ -1,0 +1,23 @@
+{
+  "name": "react-synthetic-events",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "vite"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
+    "@vitejs/plugin-react": "^4.0.2",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.2"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
