@@ -1,0 +1,19 @@
+{
+  "name": "typescript-5.2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf ./dist && tsc -p ./tsconfig.json",
+    "using": "npm run build && node ./dist/using.js",
+    "decorators-simple": "npm run build && node ./dist/decorators/simple.js",
+    "decorators-serialize": "npm run build && node ./dist/decorators/serialize.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.4.2",
+    "typescript": "^5.2.0-beta"
+  }
+}
