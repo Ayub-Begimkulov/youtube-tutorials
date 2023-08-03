@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 
+import "../styles/common.css";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -16,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className} style={{ maxWidth: 700 }}>
+      <body className={inter.className} style={{ maxWidth: 750 }}>
         <header
           style={{
             display: "flex",

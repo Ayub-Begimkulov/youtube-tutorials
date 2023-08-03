@@ -1,0 +1,41 @@
+body,
+html {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+* {
+  box-sizing: inherit;
+}
+
+html,
+body,
+textarea {
+  color: #afafaf;
+  background-color: #212121;
+}
+
+body {
+  padding: 12px 24px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+a {
+  color: white;
+}
+
+textarea {
+  outline: none;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+}
