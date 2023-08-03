@@ -1,7 +1,6 @@
 "use client";
 
-import { deleteTodo } from "@/services";
-import { revalidatePath } from "next/cache";
+import { deleteTodo } from "@/server-actions";
 import { useTransition } from "react";
 
 interface TodoDeleteButtonProps {

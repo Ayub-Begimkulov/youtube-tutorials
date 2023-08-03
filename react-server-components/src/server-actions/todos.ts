@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { request } from "./request";
-import { sleep } from "@/utils/sleep";
+import { request } from "@/utils";
 
 export interface TodoItem {
   id: number;
   title: string;
   completed: boolean;
+  createdAt: number;
 }
 
 const deletedTodoIds = new Set<number>();
@@ -20,12 +20,12 @@ export async function fetchTodos(filterTitle?: string) {
     params.title_like = filterTitle;
   }
 
-  await sleep(2000);
-
   return request<TodoItem[]>("/todos", {
     params,
   }).then((todos) => {
-    return todos.filter((todo) => !deletedTodoIds.has(todo.id));
+    return todos
+      .filter((todo) => !deletedTodoIds.has(todo.id))
+      .map((todo) => ({ ...todo, createdAt: randomDate() }));
   });
 }
 
@@ -45,4 +45,14 @@ export async function deleteTodo(id: number) {
     // I can write here what ever I want and it will work???
     revalidatePath("");
   });
+}
+
+// ================
+const dateFrom = new Date(2020, 0, 1);
+const dateTo = new Date();
+
+function randomDate() {
+  const diff = dateTo.getTime() - dateFrom.getTime();
+
+  return dateFrom.getTime() + Math.random() * diff;
 }

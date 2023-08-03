@@ -1,8 +1,8 @@
-import { fetchTodos } from "@/services";
-import { sleep } from "@/utils/sleep";
-import { TodoCheckbox } from "./TodoCheckbox";
-import { TodoDeleteButton } from "./TodoDeleteButton";
+import { fetchTodos } from "@/server-actions";
 import { TodoSearch } from "./TodoSearch";
+import { TodoItem } from "./TodoItem";
+import { sleep } from "@/utils/sleep";
+import { DateDisplay } from "@/components/DateDisplay";
 
 export default async function TodosApp(props: any) {
   const filter = props.searchParams.query;
@@ -16,18 +16,17 @@ export default async function TodosApp(props: any) {
     }
 
     return todos.map((todo) => (
-      <div key={todo.id}>
-        <TodoCheckbox todoId={todo.id} initialValue={todo.completed} />
-        {todo.title}
-        <TodoDeleteButton id={todo.id} />
-      </div>
+      <TodoItem
+        key={todo.id}
+        todo={todo}
+        dateDisplay={<DateDisplay date={todo.createdAt} />}
+      />
     ));
   };
 
   return (
     <div>
-      <TodoSearch />
-      {renderTodos()}
+      <TodoSearch searchResults={renderTodos()} />
     </div>
   );
 }

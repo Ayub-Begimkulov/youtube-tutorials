@@ -1,9 +1,10 @@
-import { fetchTodos } from "@/services";
-import { sleep } from "@/utils/sleep";
-import { TodoCheckbox } from "./TodoCheckbox";
+import { fetchTodos } from "@/server-actions";
+import { sleep } from "@/utils";
+import { DateDisplay } from "@/components/DateDisplay";
 
 export default async function TodosApp() {
   const todos = await fetchTodos();
+
   await sleep(2_000);
 
   return (
@@ -11,16 +12,11 @@ export default async function TodosApp() {
       {todos.map((todo) => {
         return (
           <div key={todo.id}>
-            <TodoCheckbox todoId={todo.id} initialValue={todo.completed} />
-            {/* <input
-              type="checkbox"
-              defaultChecked={todo.completed}
-              onChange={async () => {
-                "use server";
-                await updateTodo(todo.id, { completed: !todo.completed });
-              }}
-            /> */}
-            {todo.title}
+            <div>
+              <input type="checkbox" defaultChecked={todo.completed} />
+              {todo.title}
+              <DateDisplay date={todo.createdAt} />
+            </div>
           </div>
         );
       })}

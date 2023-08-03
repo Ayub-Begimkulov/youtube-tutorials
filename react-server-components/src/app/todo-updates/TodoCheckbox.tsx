@@ -1,7 +1,7 @@
 "use client";
 
-import { updateTodo } from "@/services";
 import { useState } from "react";
+import { updateTodo } from "@/server-actions";
 
 interface TodoCheckboxProps {
   todoId: number;

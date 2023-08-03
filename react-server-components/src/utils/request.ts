@@ -18,16 +18,15 @@ export function request<Data = unknown>(
       new URLSearchParams(params as Record<string, string>).toString()
     : undefined;
 
-  return fetch(
-    `${baseURL}${url}${normalizedParams ? `?${normalizedParams}` : ""}`,
-    {
-      ...rest,
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    }
-  ).then((res) => res.json());
+  const queryString = normalizedParams ? `?${normalizedParams}` : "";
+
+  return fetch(`${baseURL}${url}${queryString}`, {
+    ...rest,
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  }).then((res) => res.json());
 }
