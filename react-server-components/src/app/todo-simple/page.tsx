@@ -12,11 +12,9 @@ export default async function TodosApp() {
       {todos.map((todo) => {
         return (
           <div key={todo.id}>
-            <div>
-              <input type="checkbox" defaultChecked={todo.completed} />
-              {todo.title}
-              <DateDisplay date={todo.createdAt} />
-            </div>
+            <input type="checkbox" defaultChecked={todo.completed} />
+            {todo.title}
+            <DateDisplay date={todo.createdAt} />
           </div>
         );
       })}

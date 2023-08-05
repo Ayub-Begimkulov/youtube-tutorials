@@ -43,7 +43,7 @@ export async function deleteTodo(id: number) {
   deletedTodoIds.add(id);
   return request<void>(`/todos/${id}`, { method: "DELETE" }).then(() => {
     // I can write here what ever I want and it will work???
-    revalidatePath("");
+    revalidatePath("/todo");
   });
 }
 
