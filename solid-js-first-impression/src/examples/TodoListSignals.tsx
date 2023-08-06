@@ -80,7 +80,7 @@ interface TodoItemProps {
 }
 
 const TodoItem = (props: TodoItemProps) => {
-  console.log("mount");
+  console.log("init");
   return (
     <div>
       <input
