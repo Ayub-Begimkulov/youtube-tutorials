@@ -85,7 +85,7 @@ function useGrid(props: UseDynamicGridProps) {
 
       const borderBoxSize = entry.borderBoxSize[0];
       const newSize = borderBoxSize
-        ? { width: borderBoxSize.inlineSize, height: borderBoxSize.inlineSize }
+        ? { width: borderBoxSize.inlineSize, height: borderBoxSize.blockSize }
         : entry.target.getBoundingClientRect();
 
       const scrollBarSizeY =
@@ -187,8 +187,7 @@ function useGrid(props: UseDynamicGridProps) {
     };
 
     const rangeRenderStart = scrollOffset.top;
-    // TODO scrollbar measure
-    const rangeRenderEnd = scrollOffset.top + gridHeight - 15;
+    const rangeRenderEnd = scrollOffset.top + gridHeight;
 
     let totalHeight = 0;
     let rowStartIndex = -1;
@@ -235,11 +234,10 @@ function useGrid(props: UseDynamicGridProps) {
     overscanX,
   ]);
 
-  // TODO measure columns also?
+  // TODO measure columns dynamically too?
   const columnData = useMemo(() => {
     const rangeRenderStart = scrollOffset.left;
-    // TODO scrollbar measure
-    const rangeRenderEnd = scrollOffset.left + gridWidth - 15;
+    const rangeRenderEnd = scrollOffset.left + gridWidth;
 
     let totalWidth = 0;
     let columnStartIndex = -1;
@@ -268,7 +266,6 @@ function useGrid(props: UseDynamicGridProps) {
     }
 
     const columns = allColumns.slice(columnStartIndex, columnEndIndex + 1);
-    console.log(columns, columnStartIndex, columnEndIndex);
 
     return {
       totalWidth,
