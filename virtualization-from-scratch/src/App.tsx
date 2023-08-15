@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { DynamicHeight } from "./examples/DynamicHeight";
 import { Advanced } from "./examples/Advanced";
+import { Simple } from "./examples/Simple";
 
 const examplesMap = {
+  simple: Simple,
   dynamicHeight: DynamicHeight,
   advanced: Advanced,
 };
@@ -10,7 +12,7 @@ const examplesMap = {
 type Example = keyof typeof examplesMap;
 
 export const App = () => {
-  const [example, setExample] = useState<Example>("advanced");
+  const [example, setExample] = useState<Example>("dynamicHeight");
   const Component = examplesMap[example];
   return (
     <div>
