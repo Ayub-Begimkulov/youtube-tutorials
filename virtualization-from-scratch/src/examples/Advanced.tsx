@@ -368,8 +368,8 @@ const items = Array.from({ length: 1_000 }, (_, index) => ({
 }));
 const columnKeys = Object.keys(items[0]!).filter((col) => col !== "id");
 
-const containerHeight = 800;
-const containerWidth = 900;
+const containerHeight = 700;
+const containerWidth = 800;
 
 export const Advanced = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
