@@ -1,118 +1,183 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { faker } from "@faker-js/faker";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-const items = Array.from({ length: 1_000 }, () => ({
+/*
+Фичи:
+- разный размер элементов массива
+- динамический замер элементов массива
+- отслеживание элементов через resizeObserver
+- размер контейнера
+- корректировка скролла (станет ясно в конце)
+*/
+
+const items = Array.from({ length: 10_000 }, (_, index) => ({
   id: Math.random().toString(36).slice(2),
-  text: faker.lorem.text(),
+  text: String(index),
 }));
-const itemHeight = 40;
-const containerHeight = 800;
 
-export const DynamicHeight = () => {
-  const [scrollOffset, setScrollOffset] = useState(0);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [keyToSizeMap, setKeyToSizeMap] = useState<Record<string, number>>({});
+interface UseFixedSizeListProps {
+  itemsCount: number;
+  itemHeight: number;
+  listHeight: number;
+  overscan?: number;
+  scrollingDelay?: number;
+  getScrollElement: () => HTMLElement | null;
+}
+
+const DEFAULT_OVERSCAN = 3;
+const DEFAULT_SCROLLING_DELAY = 150;
+
+function useFixedSizeList(props: UseFixedSizeListProps) {
+  const {
+    itemHeight,
+    itemsCount,
+    scrollingDelay = DEFAULT_SCROLLING_DELAY,
+    overscan = DEFAULT_OVERSCAN,
+    listHeight,
+    getScrollElement,
+  } = props;
+
+  const [scrollTop, setScrollTop] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   useLayoutEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
+    const scrollElement = getScrollElement();
 
-    if (!scrollContainer) {
+    if (!scrollElement) {
       return;
     }
-
-    setScrollOffset(scrollContainer.scrollTop);
 
     const handleScroll = () => {
-      setScrollOffset(scrollContainer.scrollTop);
+      const scrollTop = scrollElement.scrollTop;
+
+      setScrollTop(scrollTop);
     };
 
-    scrollContainer.addEventListener("scroll", handleScroll);
+    handleScroll();
 
-    return () => scrollContainer.removeEventListener("scroll", handleScroll);
-  }, []);
+    scrollElement.addEventListener("scroll", handleScroll);
 
-  const [itemsToRender, totalHeight] = useMemo(() => {
-    const renderRangeStart = scrollOffset;
-    const renderRangeEnd = scrollOffset + containerHeight;
+    return () => scrollElement.removeEventListener("scroll", handleScroll);
+  }, [getScrollElement]);
 
-    const itemsToRender = [];
-    let offsetTop = 0;
+  useEffect(() => {
+    const scrollElement = getScrollElement();
 
-    for (let i = 0, l = items.length; i < l; i++) {
-      const item = items[i]!;
-      const size = keyToSizeMap[item.id] ?? itemHeight;
-      const currentOffset = offsetTop;
-
-      offsetTop += size;
-
-      if (
-        currentOffset + size > renderRangeStart &&
-        currentOffset < renderRangeEnd
-      ) {
-        itemsToRender.push({
-          ...item,
-          offsetTop: currentOffset,
-          size,
-        });
-      }
-    }
-
-    return [itemsToRender, offsetTop];
-  }, [keyToSizeMap, scrollOffset]);
-
-  const measureRef = useCallback((element: Element | null) => {
-    if (!element) {
+    if (!scrollElement) {
       return;
     }
 
-    const key = element.getAttribute("data-key");
+    let timeoutId: number | null = null;
 
-    if (!key) {
-      return;
-    }
+    const handleScroll = () => {
+      setIsScrolling(true);
 
-    setKeyToSizeMap((prevSizes) => {
-      if (typeof prevSizes[key] === "number") {
-        return prevSizes;
+      if (typeof timeoutId === "number") {
+        clearTimeout(timeoutId);
       }
 
-      const elementSize = element.getBoundingClientRect();
+      timeoutId = setTimeout(() => {
+        setIsScrolling(false);
+      }, scrollingDelay);
+    };
 
-      return {
-        ...prevSizes,
-        [key]: elementSize.height,
-      };
-    });
-  }, []);
+    scrollElement.addEventListener("scroll", handleScroll);
+
+    return () => {
+      if (typeof timeoutId === "number") {
+        clearTimeout(timeoutId);
+      }
+      scrollElement.removeEventListener("scroll", handleScroll);
+    };
+  }, [getScrollElement]);
+
+  const { virtualItems, startIndex, endIndex } = useMemo(() => {
+    const rangeStart = scrollTop;
+    const rangeEnd = scrollTop + listHeight;
+
+    let startIndex = Math.floor(rangeStart / itemHeight);
+    let endIndex = Math.ceil(rangeEnd / itemHeight);
+
+    startIndex = Math.max(0, startIndex - overscan);
+    endIndex = Math.min(itemsCount - 1, endIndex + overscan);
+
+    const virtualItems = [];
+
+    for (let index = startIndex; index <= endIndex; index++) {
+      virtualItems.push({
+        index,
+        offsetTop: index * itemHeight,
+      });
+    }
+    return { virtualItems, startIndex, endIndex };
+  }, [scrollTop, listHeight, itemsCount]);
+
+  const totalHeight = itemHeight * itemsCount;
+
+  return {
+    virtualItems,
+    totalHeight,
+    startIndex,
+    endIndex,
+    isScrolling,
+  };
+}
+
+const itemHeight = 40;
+const containerHeight = 600;
+
+export function DynamicHeight() {
+  const [listItems, setListItems] = useState(items);
+  const scrollElementRef = useRef<HTMLDivElement>(null);
+
+  const { isScrolling, virtualItems, totalHeight } = useFixedSizeList({
+    itemHeight: itemHeight,
+    itemsCount: listItems.length,
+    listHeight: containerHeight,
+    getScrollElement: useCallback(() => scrollElementRef.current, []),
+  });
 
   return (
-    <div style={{ height: "100%", padding: 12 }}>
-      <h1>Table</h1>
-
+    <div style={{ padding: "0 12px" }}>
+      <h1>List</h1>
+      <div style={{ marginBottom: 12 }}>
+        <button
+          onClick={() => setListItems((items) => items.slice().reverse())}
+        >
+          reverse
+        </button>
+      </div>
       <div
-        ref={scrollContainerRef}
+        ref={scrollElementRef}
         style={{
           height: containerHeight,
-          position: "relative",
           overflow: "auto",
+          border: "1px solid lightgrey",
+          position: "relative",
         }}
       >
         <div style={{ height: totalHeight }}>
-          {itemsToRender.map((item) => {
+          {virtualItems.map((virtualItem) => {
+            const item = listItems[virtualItem.index]!;
+
             return (
               <div
-                key={item.id}
                 style={{
-                  height: item.size,
                   position: "absolute",
                   top: 0,
-                  left: 0,
-                  transform: `translateY(${item.offsetTop}px)`,
+                  transform: `translateY(${virtualItem.offsetTop}px)`,
+                  height: itemHeight,
+                  padding: "6px 12px",
                 }}
+                key={item.id}
               >
-                <div ref={measureRef} data-key={item.id}>
-                  {item.text}
-                </div>
+                {isScrolling ? "Scrolling..." : item.text}
               </div>
             );
           })}
@@ -120,4 +185,4 @@ export const DynamicHeight = () => {
       </div>
     </div>
   );
-};
+}
