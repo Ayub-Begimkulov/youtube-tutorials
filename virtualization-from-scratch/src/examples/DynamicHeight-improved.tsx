@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import {
   useCallback,
   useEffect,
+  useInsertionEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -14,7 +15,7 @@ import {
 - разный размер элементов списка [done]
 - динамический замер элементов списка [done] 
 - отслеживание элементов через resizeObserver [done]
-- корректировка скролла (станет ясно в конце)
+- корректировка скролла (станет ясно в конце) [done]
 */
 
 const items = Array.from({ length: 10_000 }, (_) => ({
@@ -55,6 +56,14 @@ function validateProps(props: UseDynamicSizeListProps) {
       `you must pass either "itemHeight" or "estimateItemHeight" prop`
     );
   }
+}
+
+function useLatest<T>(value: T) {
+  const valueRef = useRef(value);
+  useInsertionEffect(() => {
+    valueRef.current = value;
+  });
+  return valueRef;
 }
 
 function useDynamicSizeList(props: UseDynamicSizeListProps) {
@@ -217,9 +226,26 @@ function useDynamicSizeList(props: UseDynamicSizeListProps) {
       itemsCount,
     ]);
 
-  const measureElement = useCallback(
-    (element: Element | null) => {
+  const latestData = useLatest({
+    measurementCache,
+    getItemKey,
+    allItems,
+    getScrollElement,
+    scrollTop,
+  });
+
+  const measureElementInner = useCallback(
+    (
+      element: Element | null,
+      resizeObserver: ResizeObserver,
+      entry?: ResizeObserverEntry
+    ) => {
       if (!element) {
+        return;
+      }
+
+      if (!element.isConnected) {
+        resizeObserver.unobserve(element);
         return;
       }
 
@@ -232,13 +258,53 @@ function useDynamicSizeList(props: UseDynamicSizeListProps) {
         );
         return;
       }
+      const { measurementCache, getItemKey, allItems, scrollTop } =
+        latestData.current;
 
-      const size = element.getBoundingClientRect();
       const key = getItemKey(index);
+      const isResize = Boolean(entry);
 
-      setMeasurementCache((cache) => ({ ...cache, [key]: size.height }));
+      if (!isResize && typeof measurementCache[key] === "number") {
+        return;
+      }
+
+      const height =
+        entry?.borderBoxSize[0]?.blockSize ??
+        element.getBoundingClientRect().height;
+
+      if (measurementCache[key] === height) {
+        return;
+      }
+
+      const item = allItems[index]!;
+      const delta = height - item.height;
+
+      if (delta !== 0 && scrollTop > item.offsetTop) {
+        const element = getScrollElement();
+        if (element) {
+          element.scrollBy(0, delta);
+        }
+      }
+
+      setMeasurementCache((cache) => ({ ...cache, [key]: height }));
     },
-    [getItemKey]
+    []
+  );
+
+  const itemsResizeObserver = useMemo(() => {
+    const ro = new ResizeObserver((entries) => {
+      entries.forEach((entry) => {
+        measureElementInner(entry.target, ro, entry);
+      });
+    });
+    return ro;
+  }, [latestData]);
+
+  const measureElement = useCallback(
+    (element: Element | null) => {
+      measureElementInner(element, itemsResizeObserver);
+    },
+    [itemsResizeObserver]
   );
 
   return {
