@@ -264,6 +264,8 @@ function useDynamicSizeList(props: UseDynamicSizeListProps) {
       const key = getItemKey(index);
       const isResize = Boolean(entry);
 
+      resizeObserver.observe(element);
+
       if (!isResize && typeof measurementCache[key] === "number") {
         return;
       }

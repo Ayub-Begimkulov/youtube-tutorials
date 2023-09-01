@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { DynamicHeight } from "./examples/DynamicHeight";
+import { DynamicHeight as DynamicHeightImproved } from "./examples/DynamicHeight-improved";
 import { Advanced } from "./examples/Advanced";
 import { Simple } from "./examples/Simple";
 
 const examplesMap = {
   simple: Simple,
   dynamicHeight: DynamicHeight,
+  dynamicHeightImproved: DynamicHeightImproved,
   advanced: Advanced,
 };
 
