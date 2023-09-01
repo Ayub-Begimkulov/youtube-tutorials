@@ -1,0 +1,40 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#root {
+  height: 100%;
+}
+
+body,
+html {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+* {
+  box-sizing: inherit;
+}
+
+html,
+body,
+textarea {
+  color: white;
+  background-color: #212121;
+}
+
+body {
+  padding: 12px 24px;
+}
+
+textarea {
+  outline: none;
+}
