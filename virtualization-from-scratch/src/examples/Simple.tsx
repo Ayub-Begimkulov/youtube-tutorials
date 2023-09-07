@@ -15,10 +15,11 @@ import {
 - isScrolling
 */
 
-const items = Array.from({ length: 10_000 }, (_, index) => ({
-  id: Math.random().toString(36).slice(2),
-  text: String(index),
-}));
+const createItems = () =>
+  Array.from({ length: 10_000 }, (_, index) => ({
+    id: Math.random().toString(36).slice(2),
+    text: String(index),
+  }));
 
 interface UseFixedSizeListProps {
   itemsCount: number;
@@ -132,7 +133,7 @@ const itemHeight = 40;
 const containerHeight = 600;
 
 export function Simple() {
-  const [listItems, setListItems] = useState(items);
+  const [listItems, setListItems] = useState(createItems);
   const scrollElementRef = useRef<HTMLDivElement>(null);
 
   const { isScrolling, virtualItems, totalHeight } = useFixedSizeList({

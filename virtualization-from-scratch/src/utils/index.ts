@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useInsertionEffect, useMemo, useRef } from "react";
 
 export function rafThrottle<Fn extends (...args: any[]) => any>(cb: Fn) {
   let rafId: number | null = null;
   let latestArgs: Parameters<Fn>;
+
   return function throttled(...args: Parameters<Fn>) {
     latestArgs = args;
 
@@ -17,13 +18,12 @@ export function rafThrottle<Fn extends (...args: any[]) => any>(cb: Fn) {
 }
 
 export function useResizeObserver(cb: ResizeObserverCallback) {
-  const cbRef = useRef(cb);
-  cbRef.current = cb;
+  const latestCb = useRef(cb);
 
   const resizeObserver = useMemo(
     () =>
       new ResizeObserver((entires, observer) => {
-        cbRef.current(entires, observer);
+        latestCb.current(entires, observer);
       }),
     []
   );
@@ -33,13 +33,12 @@ export function useResizeObserver(cb: ResizeObserverCallback) {
   return resizeObserver;
 }
 
-// TODO what to do with this hook when using refs???
 export function useLatest<T>(value: T) {
   const latestValue = useRef(value);
 
-  // useLayoutEffect(() => {
-  latestValue.current = value;
-  // });
+  useInsertionEffect(() => {
+    latestValue.current = value;
+  }, []);
 
   return latestValue;
 }

@@ -17,13 +17,14 @@ import {
 - корректировка скролла (станет ясно в конце)
 */
 
-const items = Array.from({ length: 10_000 }, (_) => ({
-  id: Math.random().toString(36).slice(2),
-  text: faker.lorem.paragraphs({
-    min: 3,
-    max: 6,
-  }),
-}));
+const createItems = () =>
+  Array.from({ length: 10_000 }, (_) => ({
+    id: Math.random().toString(36).slice(2),
+    text: faker.lorem.paragraphs({
+      min: 3,
+      max: 6,
+    }),
+  }));
 
 type Key = string | number;
 
@@ -255,7 +256,7 @@ function useDynamicSizeList(props: UseDynamicSizeListProps) {
 const containerHeight = 600;
 
 export function DynamicHeight() {
-  const [listItems, setListItems] = useState(items);
+  const [listItems, setListItems] = useState(createItems);
   const scrollElementRef = useRef<HTMLDivElement>(null);
 
   const { virtualItems, totalHeight, measureElement } = useDynamicSizeList({

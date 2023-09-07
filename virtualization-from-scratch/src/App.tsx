@@ -1,20 +1,20 @@
 import { useState } from "react";
 import { DynamicHeight } from "./examples/DynamicHeight";
 import { DynamicHeight as DynamicHeightImproved } from "./examples/DynamicHeight-improved";
-import { Advanced } from "./examples/Advanced";
 import { Simple } from "./examples/Simple";
+import { Grid } from "./examples/Grid-old";
 
 const examplesMap = {
   simple: Simple,
   dynamicHeight: DynamicHeight,
   dynamicHeightImproved: DynamicHeightImproved,
-  advanced: Advanced,
+  grid: Grid,
 };
 
 type Example = keyof typeof examplesMap;
 
 export const App = () => {
-  const [example, setExample] = useState<Example>("dynamicHeight");
+  const [example, setExample] = useState<Example>("grid");
   const Component = examplesMap[example];
   return (
     <div>
