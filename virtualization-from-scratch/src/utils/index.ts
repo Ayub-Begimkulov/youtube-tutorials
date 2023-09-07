@@ -1,36 +1,7 @@
 import { useEffect, useInsertionEffect, useMemo, useRef } from "react";
 
-export function rafThrottle<Fn extends (...args: any[]) => any>(cb: Fn) {
-  let rafId: number | null = null;
-  let latestArgs: Parameters<Fn>;
-
-  return function throttled(...args: Parameters<Fn>) {
-    latestArgs = args;
-
-    if (typeof rafId === "number") {
-      return;
-    }
-
-    rafId = requestAnimationFrame(() => {
-      cb(...latestArgs);
-    });
-  };
-}
-
-export function useResizeObserver(cb: ResizeObserverCallback) {
-  const latestCb = useRef(cb);
-
-  const resizeObserver = useMemo(
-    () =>
-      new ResizeObserver((entires, observer) => {
-        latestCb.current(entires, observer);
-      }),
-    []
-  );
-
-  useEffect(() => () => resizeObserver.disconnect(), []);
-
-  return resizeObserver;
+export function isNumber(value: unknown): value is number {
+  return typeof value === "number";
 }
 
 export function useLatest<T>(value: T) {
@@ -43,8 +14,38 @@ export function useLatest<T>(value: T) {
   return latestValue;
 }
 
-export function isNumber(value: unknown): value is number {
-  return typeof value === "number";
+export function rafThrottle<Fn extends (...args: any[]) => any>(cb: Fn) {
+  let rafId: number | null = null;
+  let latestArgs: Parameters<Fn>;
+
+  return function throttled(...args: Parameters<Fn>) {
+    latestArgs = args;
+
+    if (isNumber(rafId)) {
+      return;
+    }
+
+    rafId = requestAnimationFrame(() => {
+      cb(...latestArgs);
+      rafId = null;
+    });
+  };
+}
+
+export function useResizeObserver(cb: ResizeObserverCallback) {
+  const latestCb = useLatest(cb);
+
+  const resizeObserver = useMemo(
+    () =>
+      new ResizeObserver((entires, observer) => {
+        latestCb.current(entires, observer);
+      }),
+    []
+  );
+
+  useEffect(() => () => resizeObserver.disconnect(), []);
+
+  return resizeObserver;
 }
 
 let rafScheduled = false;

@@ -2,12 +2,18 @@ import { faker } from "@faker-js/faker";
 import {
   useCallback,
   useEffect,
-  useInsertionEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+import {
+  isNumber,
+  rafThrottle,
+  scheduleDOMUpdate,
+  useLatest,
+  useResizeObserver,
+} from "../utils";
 
 /*
 Фичи:
@@ -72,14 +78,6 @@ function validateProps(props: UseDynamicSizeGridProps) {
   }
 }
 
-function useLatest<T>(value: T) {
-  const valueRef = useRef(value);
-  useInsertionEffect(() => {
-    valueRef.current = value;
-  });
-  return valueRef;
-}
-
 function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
   validateProps(props);
 
@@ -124,14 +122,13 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
         const key = `${getRowKey(rowIndex)}-${getColumnKey(columnIndex)}`;
         const size = columnSizeCache[key];
 
-        if (typeof size === "number") {
-          measuredColumnWidth =
-            typeof measuredColumnWidth === "number"
-              ? Math.max(measuredColumnWidth, size)
-              : size;
+        if (isNumber(size)) {
+          measuredColumnWidth = isNumber(measuredColumnWidth)
+            ? Math.max(measuredColumnWidth, size)
+            : size;
         }
       }
-      if (typeof measuredColumnWidth === "number") {
+      if (isNumber(measuredColumnWidth)) {
         widths[columnIndex] = measuredColumnWidth;
       } else {
         widths[columnIndex] = estimateColumnWidth?.(columnIndex) ?? 0;
@@ -194,9 +191,12 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
 
     handleScroll();
 
-    scrollElement.addEventListener("scroll", handleScroll);
+    const throttledHandleScroll = rafThrottle(handleScroll);
 
-    return () => scrollElement.removeEventListener("scroll", handleScroll);
+    scrollElement.addEventListener("scroll", throttledHandleScroll);
+
+    return () =>
+      scrollElement.removeEventListener("scroll", throttledHandleScroll);
   }, [getScrollElement]);
 
   useEffect(() => {
@@ -211,7 +211,7 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
     const handleScroll = () => {
       setIsScrolling(true);
 
-      if (typeof timeoutId === "number") {
+      if (isNumber(timeoutId)) {
         clearTimeout(timeoutId);
       }
 
@@ -223,7 +223,7 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
     scrollElement.addEventListener("scroll", handleScroll);
 
     return () => {
-      if (typeof timeoutId === "number") {
+      if (isNumber(timeoutId)) {
         clearTimeout(timeoutId);
       }
       scrollElement.removeEventListener("scroll", handleScroll);
@@ -238,7 +238,7 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
         }
 
         const key = getRowKey(index);
-        if (typeof rowSizeCache[key] === "number") {
+        if (isNumber(rowSizeCache[key])) {
           return rowSizeCache[key]!;
         }
 
@@ -401,7 +401,7 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
 
       resizeObserver.observe(element);
 
-      if (!isResize && typeof measurementCache[key] === "number") {
+      if (!isResize && isNumber(measurementCache[key])) {
         return;
       }
 
@@ -413,29 +413,28 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
         return;
       }
 
+      setRowSizeCache((cache) => ({ ...cache, [key]: height }));
+
       const row = allRows[rowIndex]!;
       const delta = height - row.height;
 
       if (delta !== 0 && scrollTop > row.offsetTop) {
         const element = getScrollElement();
         if (element) {
-          element.scrollBy(0, delta);
+          scheduleDOMUpdate(() => {
+            element.scrollBy(0, delta);
+          });
         }
       }
-
-      setRowSizeCache((cache) => ({ ...cache, [key]: height }));
     },
     [latestData]
   );
 
-  const rowHeightResizeObserver = useMemo(() => {
-    const ro = new ResizeObserver((entries) => {
-      entries.forEach((entry) => {
-        measureRowHeightInner(entry.target, ro, entry);
-      });
+  const rowHeightResizeObserver = useResizeObserver((entries, observer) => {
+    entries.forEach((entry) => {
+      measureRowHeightInner(entry.target, observer, entry);
     });
-    return ro;
-  }, [latestData]);
+  });
 
   const measureRowHeight = useCallback(
     (element: Element | null) => {
@@ -444,7 +443,7 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
     [rowHeightResizeObserver]
   );
 
-  const measureColumnInner = useCallback(
+  const measureColumnWidthInner = useCallback(
     (
       element: Element | null,
       resizeObserver: ResizeObserver,
@@ -486,7 +485,7 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
 
       resizeObserver.observe(element);
 
-      if (!isResize && typeof columnSizeCache[key] === "number") {
+      if (!isResize && isNumber(columnSizeCache[key])) {
         return;
       }
 
@@ -506,25 +505,24 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
       if (delta !== 0 && scrollLeft > column.offsetLeft) {
         const element = getScrollElement();
         if (element) {
-          element.scrollBy(0, delta);
+          scheduleDOMUpdate(() => {
+            element.scrollBy(delta, 0);
+          });
         }
       }
     },
     [latestData]
   );
 
-  const columnWidthResizeObserver = useMemo(() => {
-    const ro = new ResizeObserver((entries) => {
-      entries.forEach((entry) => {
-        measureColumnInner(entry.target, ro, entry);
-      });
+  const columnWidthResizeObserver = useResizeObserver((entries, observer) => {
+    entries.forEach((entry) => {
+      measureColumnWidthInner(entry.target, observer, entry);
     });
-    return ro;
-  }, []);
+  });
 
   const measureColumnWidth = useCallback(
     (element: Element | null) => {
-      measureColumnInner(element, columnWidthResizeObserver);
+      measureColumnWidthInner(element, columnWidthResizeObserver);
     },
     [columnWidthResizeObserver]
   );
@@ -553,7 +551,7 @@ const createItems = () =>
     id: Math.random().toString(36).slice(2),
     columns: Array.from({ length: gridSize }, () => ({
       id: Math.random().toString(36).slice(2),
-      text: faker.lorem.words({ min: 1, max: 4 }),
+      text: faker.lorem.words({ min: 1, max: 7 }),
     })),
   }));
 
@@ -566,12 +564,10 @@ export function Grid() {
   const {
     virtualRows,
     totalHeight,
-    // measureRowHeight,
     measureColumnWidth,
     totalWidth,
     virtualColumns,
   } = useDynamicSizeGrid({
-    // estimateRowHeight: useCallback(() => 16, []),
     rowHeight: useCallback(() => 30, []),
     rowsCount: gridSize,
     columnsCount: gridSize,
@@ -614,18 +610,14 @@ export function Grid() {
             return (
               <div
                 key={item.id}
-                // data-row-index={virtualRow.index}
-                // ref={measureRowHeight}
                 style={{
                   position: "absolute",
                   top: 0,
                   transform: `translateY(${virtualRow.offsetTop}px)`,
                   padding: "6px 12px",
-                  // display: "flex",
                   height: virtualRow.height,
                 }}
               >
-                {/* {virtualRow.index} */}
                 {virtualColumns.map((virtualColumn) => {
                   const item =
                     gridItems[virtualRow.index]?.columns[virtualColumn.index];
@@ -638,8 +630,93 @@ export function Grid() {
                         position: "absolute",
                         left: virtualColumn.offsetLeft,
                         whiteSpace: "nowrap",
-                        // marginLeft: index === 0 ? virtualColumn.offsetLeft : 0,
-                        // width: virtualColumn.width,
+                      }}
+                      key={virtualColumn.key}
+                    >
+                      {item?.text}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function Grid2() {
+  const [gridItems, setGridItems] = useState(createItems);
+  const scrollElementRef = useRef<HTMLDivElement>(null);
+
+  const {
+    virtualRows,
+    totalHeight,
+    measureRowHeight,
+    totalWidth,
+    virtualColumns,
+  } = useDynamicSizeGrid({
+    estimateRowHeight: useCallback(() => 30, []),
+    rowsCount: gridSize,
+    columnsCount: gridSize,
+    columnWidth: useCallback(() => 150, []),
+    getColumnKey: useCallback((index) => index, []),
+    getScrollElement: useCallback(() => scrollElementRef.current, []),
+    getRowKey: useCallback((index) => gridItems[index]!.id, [gridItems]),
+  });
+
+  const reverseGrid = () => {
+    setGridItems((items) =>
+      items
+        .map((item) => ({
+          ...item,
+          columns: item.columns.slice().reverse(),
+        }))
+        .reverse()
+    );
+  };
+
+  return (
+    <div style={{ padding: "0 12px" }}>
+      <h1>List</h1>
+      <div style={{ marginBottom: 12 }}>
+        <button onClick={reverseGrid}>reverse</button>
+      </div>
+      <div
+        ref={scrollElementRef}
+        style={{
+          height: containerHeight,
+          overflow: "auto",
+          border: "1px solid lightgrey",
+          position: "relative",
+        }}
+      >
+        <div style={{ height: totalHeight, width: totalWidth }}>
+          {virtualRows.map((virtualRow) => {
+            const item = gridItems[virtualRow.index]!;
+
+            return (
+              <div
+                key={item.id}
+                ref={measureRowHeight}
+                data-row-index={virtualRow.index}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  transform: `translateY(${virtualRow.offsetTop}px)`,
+                  padding: "6px 12px",
+                  display: "flex",
+                }}
+              >
+                {virtualColumns.map((virtualColumn, index) => {
+                  const item =
+                    gridItems[virtualRow.index]?.columns[virtualColumn.index];
+                  return (
+                    <div
+                      style={{
+                        marginLeft: index === 0 ? virtualColumn.offsetLeft : 0,
+                        width: virtualColumn.width,
                       }}
                       key={virtualColumn.key}
                     >
