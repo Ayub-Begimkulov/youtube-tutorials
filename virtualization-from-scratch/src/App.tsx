@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DynamicHeight } from "./examples/DynamicHeight";
 import { DynamicHeight as DynamicHeightImproved } from "./examples/DynamicHeight-improved";
 import { Simple } from "./examples/Simple";
-import { Grid } from "./examples/Grid-old";
+import { Grid } from "./examples/Grid";
 
 const examplesMap = {
   simple: Simple,

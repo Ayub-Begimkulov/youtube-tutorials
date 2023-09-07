@@ -16,43 +16,34 @@ import {
 - Улучшения 
 */
 
-const createItems = () =>
-  Array.from({ length: 10_000 }, (_) => ({
-    id: Math.random().toString(36).slice(2),
-    text: faker.lorem.paragraphs({
-      min: 3,
-      max: 6,
-    }),
-  }));
-
 type Key = string | number;
 
-interface UseDynamicSizeListProps {
-  itemsCount: number;
-  itemHeight?: (index: number) => number;
-  estimateItemHeight?: (index: number) => number;
-  getItemKey: (index: number) => Key;
-  overscan?: number;
+interface UseDynamicSizeGridProps {
+  rowsCount: number;
+  rowHeight?: (index: number) => number;
+  estimateRowHeight?: (index: number) => number;
+  getRowKey: (index: number) => Key;
+  overscanY?: number;
   scrollingDelay?: number;
   getScrollElement: () => HTMLElement | null;
 }
 
-interface DynamicSizeListItem {
+interface DynamicSizeGridRow {
   key: Key;
   index: number;
   offsetTop: number;
   height: number;
 }
 
-const DEFAULT_OVERSCAN = 3;
+const DEFAULT_OVERSCAN_Y = 3;
 const DEFAULT_SCROLLING_DELAY = 150;
 
-function validateProps(props: UseDynamicSizeListProps) {
-  const { itemHeight, estimateItemHeight } = props;
+function validateProps(props: UseDynamicSizeGridProps) {
+  const { rowHeight, estimateRowHeight } = props;
 
-  if (!itemHeight && !estimateItemHeight) {
+  if (!rowHeight && !estimateRowHeight) {
     throw new Error(
-      `you must pass either "itemHeight" or "estimateItemHeight" prop`
+      `you must pass either "rowHeight" or "estimateRowHeight" prop`
     );
   }
 }
@@ -65,22 +56,20 @@ function useLatest<T>(value: T) {
   return valueRef;
 }
 
-function useDynamicSizeList(props: UseDynamicSizeListProps) {
+function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
   validateProps(props);
 
   const {
-    itemHeight,
-    estimateItemHeight,
-    getItemKey,
-    itemsCount,
+    rowHeight,
+    estimateRowHeight,
+    getRowKey,
+    rowsCount,
     scrollingDelay = DEFAULT_SCROLLING_DELAY,
-    overscan = DEFAULT_OVERSCAN,
+    overscanY = DEFAULT_OVERSCAN_Y,
     getScrollElement,
   } = props;
 
-  const [measurementCache, setMeasurementCache] = useState<Record<Key, number>>(
-    {}
-  );
+  const [rowSizeCache, setRowSizeCache] = useState<Record<Key, number>>({});
   const [listHeight, setListHeight] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
@@ -161,79 +150,79 @@ function useDynamicSizeList(props: UseDynamicSizeListProps) {
     };
   }, [getScrollElement]);
 
-  const { virtualItems, startIndex, endIndex, totalHeight, allItems } =
+  const { virtualRows, rowStartIndex, rowEndIndex, totalHeight, allRows } =
     useMemo(() => {
-      const getItemHeight = (index: number) => {
-        if (itemHeight) {
-          return itemHeight(index);
+      const getRowHeight = (index: number) => {
+        if (rowHeight) {
+          return rowHeight(index);
         }
 
-        const key = getItemKey(index);
-        if (typeof measurementCache[key] === "number") {
-          return measurementCache[key]!;
+        const key = getRowKey(index);
+        if (typeof rowSizeCache[key] === "number") {
+          return rowSizeCache[key]!;
         }
 
-        return estimateItemHeight!(index);
+        return estimateRowHeight!(index);
       };
 
       const rangeStart = scrollTop;
       const rangeEnd = scrollTop + listHeight;
 
       let totalHeight = 0;
-      let startIndex = -1;
-      let endIndex = -1;
-      const allRows: DynamicSizeListItem[] = Array(itemsCount);
+      let rowStartIndex = -1;
+      let rowEndIndex = -1;
+      const allRows: DynamicSizeGridRow[] = Array(rowsCount);
 
-      for (let index = 0; index < itemsCount; index++) {
-        const key = getItemKey(index);
+      for (let index = 0; index < rowsCount; index++) {
+        const key = getRowKey(index);
         const row = {
           key,
           index: index,
-          height: getItemHeight(index),
+          height: getRowHeight(index),
           offsetTop: totalHeight,
         };
 
         totalHeight += row.height;
         allRows[index] = row;
 
-        if (startIndex === -1 && row.offsetTop + row.height > rangeStart) {
-          startIndex = Math.max(0, index - overscan);
+        if (rowStartIndex === -1 && row.offsetTop + row.height > rangeStart) {
+          rowStartIndex = Math.max(0, index - overscanY);
         }
 
-        if (endIndex === -1 && row.offsetTop + row.height >= rangeEnd) {
-          endIndex = Math.min(itemsCount - 1, index + overscan);
+        if (rowEndIndex === -1 && row.offsetTop + row.height >= rangeEnd) {
+          rowEndIndex = Math.min(rowsCount - 1, index + overscanY);
         }
       }
 
-      const virtualRows = allRows.slice(startIndex, endIndex + 1);
+      const virtualRows = allRows.slice(rowStartIndex, rowEndIndex + 1);
 
       return {
-        virtualItems: virtualRows,
-        startIndex,
-        endIndex,
-        allItems: allRows,
+        virtualRows,
+        rowStartIndex,
+        rowEndIndex,
+        allRows,
         totalHeight,
       };
     }, [
       scrollTop,
-      overscan,
+      overscanY,
       listHeight,
-      itemHeight,
-      getItemKey,
-      estimateItemHeight,
-      measurementCache,
-      itemsCount,
+      rowHeight,
+      getRowKey,
+      estimateRowHeight,
+      rowSizeCache,
+      rowsCount,
     ]);
 
   const latestData = useLatest({
-    measurementCache,
-    getItemKey,
-    allItems,
+    measurementCache: rowSizeCache,
+    getRowKey,
+    allRows,
     getScrollElement,
     scrollTop,
   });
 
-  const measureElementInner = useCallback(
+  const measureRowInner = useCallback(
     (
       element: Element | null,
       resizeObserver: ResizeObserver,
@@ -248,19 +237,19 @@ function useDynamicSizeList(props: UseDynamicSizeListProps) {
         return;
       }
 
-      const indexAttribute = element.getAttribute("data-index") || "";
-      const index = parseInt(indexAttribute, 10);
+      const rowIndexAttribute = element.getAttribute("data-row-index") || "";
+      const rowIndex = parseInt(rowIndexAttribute, 10);
 
-      if (Number.isNaN(index)) {
+      if (Number.isNaN(rowIndex)) {
         console.error(
-          "dynamic elements must have a valid `data-index` attribute"
+          "dynamic rows must have a valid `data-row-index` attribute"
         );
         return;
       }
-      const { measurementCache, getItemKey, allItems, scrollTop } =
+      const { measurementCache, getRowKey, allRows, scrollTop } =
         latestData.current;
 
-      const key = getItemKey(index);
+      const key = getRowKey(rowIndex);
       const isResize = Boolean(entry);
 
       resizeObserver.observe(element);
@@ -277,17 +266,17 @@ function useDynamicSizeList(props: UseDynamicSizeListProps) {
         return;
       }
 
-      const item = allItems[index]!;
-      const delta = height - item.height;
+      const row = allRows[rowIndex]!;
+      const delta = height - row.height;
 
-      if (delta !== 0 && scrollTop > item.offsetTop) {
+      if (delta !== 0 && scrollTop > row.offsetTop) {
         const element = getScrollElement();
         if (element) {
           element.scrollBy(0, delta);
         }
       }
 
-      setMeasurementCache((cache) => ({ ...cache, [key]: height }));
+      setRowSizeCache((cache) => ({ ...cache, [key]: height }));
     },
     []
   );
@@ -295,52 +284,70 @@ function useDynamicSizeList(props: UseDynamicSizeListProps) {
   const itemsResizeObserver = useMemo(() => {
     const ro = new ResizeObserver((entries) => {
       entries.forEach((entry) => {
-        measureElementInner(entry.target, ro, entry);
+        measureRowInner(entry.target, ro, entry);
       });
     });
     return ro;
   }, [latestData]);
 
-  const measureElement = useCallback(
+  const measureRow = useCallback(
     (element: Element | null) => {
-      measureElementInner(element, itemsResizeObserver);
+      measureRowInner(element, itemsResizeObserver);
     },
     [itemsResizeObserver]
   );
 
   return {
-    virtualItems,
+    virtualRows,
     totalHeight,
-    startIndex,
-    endIndex,
+    rowStartIndex,
+    rowEndIndex,
     isScrolling,
-    allItems,
-    measureElement,
+    allRows,
+    measureRow,
   };
 }
 
+const gridSize = 100;
+
+const createItems = () =>
+  Array.from({ length: gridSize }, (_) => ({
+    id: Math.random().toString(36).slice(2),
+    columns: Array.from({ length: gridSize }, () => ({
+      id: Math.random().toString(36).slice(2),
+      text: faker.lorem.words({ min: 1, max: 4 }),
+    })),
+  }));
+
 const containerHeight = 600;
 
-export function DynamicHeight() {
-  const [listItems, setListItems] = useState(createItems);
+export function Grid() {
+  const [gridItems, setGridItems] = useState(createItems);
   const scrollElementRef = useRef<HTMLDivElement>(null);
 
-  const { virtualItems, totalHeight, measureElement } = useDynamicSizeList({
-    estimateItemHeight: useCallback(() => 16, []),
-    itemsCount: listItems.length,
+  const { virtualRows, totalHeight, measureRow } = useDynamicSizeGrid({
+    estimateRowHeight: useCallback(() => 16, []),
+    rowsCount: gridSize,
     getScrollElement: useCallback(() => scrollElementRef.current, []),
-    getItemKey: useCallback((index) => listItems[index]!.id, [listItems]),
+    getRowKey: useCallback((index) => gridItems[index]!.id, [gridItems]),
   });
+
+  const reverseGrid = () => {
+    setGridItems((items) =>
+      items
+        .map((item) => ({
+          ...item,
+          columns: item.columns.slice().reverse(),
+        }))
+        .reverse()
+    );
+  };
 
   return (
     <div style={{ padding: "0 12px" }}>
       <h1>List</h1>
       <div style={{ marginBottom: 12 }}>
-        <button
-          onClick={() => setListItems((items) => items.slice().reverse())}
-        >
-          reverse
-        </button>
+        <button onClick={reverseGrid}>reverse</button>
       </div>
       <div
         ref={scrollElementRef}
@@ -352,22 +359,33 @@ export function DynamicHeight() {
         }}
       >
         <div style={{ height: totalHeight }}>
-          {virtualItems.map((virtualItem) => {
-            const item = listItems[virtualItem.index]!;
+          {virtualRows.map((virtualRow) => {
+            const item = gridItems[virtualRow.index]!;
 
             return (
               <div
                 key={item.id}
-                data-index={virtualItem.index}
-                ref={measureElement}
+                data-row-index={virtualRow.index}
+                ref={measureRow}
                 style={{
                   position: "absolute",
                   top: 0,
-                  transform: `translateY(${virtualItem.offsetTop}px)`,
+                  transform: `translateY(${virtualRow.offsetTop}px)`,
                   padding: "6px 12px",
+                  display: "flex",
                 }}
               >
-                {virtualItem.index} {item.text}
+                {virtualRow.index}
+                {item.columns.map((col) => (
+                  <div
+                    style={{
+                      width: 200,
+                    }}
+                    key={col.id}
+                  >
+                    {col.text}
+                  </div>
+                ))}
               </div>
             );
           })}
