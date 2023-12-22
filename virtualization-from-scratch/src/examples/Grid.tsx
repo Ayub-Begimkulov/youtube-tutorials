@@ -334,7 +334,7 @@ function useDynamicSizeGrid(props: UseDynamicSizeGridProps) {
     }
 
     columnStartIndex = Math.max(0, columnStartIndex - overscanY);
-    columnEndIndex = Math.min(rowsCount - 1, columnEndIndex + overscanY);
+    columnEndIndex = Math.min(columnsCount - 1, columnEndIndex + overscanY);
 
     const virtualColumns = allColumns.slice(
       columnStartIndex,
