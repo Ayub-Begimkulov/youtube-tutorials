@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Custom } from "./examples/Custom";
 import { Library } from "./examples/Library";
+import { CustomFull } from "./examples/CustomFull";
 
 const examplesMap = {
   library: Library,
   custom: Custom,
+  customFull: CustomFull,
 };
 
 type Example = keyof typeof examplesMap;

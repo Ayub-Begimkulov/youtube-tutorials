@@ -2,9 +2,9 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { DynamicWidthItem } from "../components/DynamicWidthItem";
 import { ExampleWrapper } from "../components/ExampleWrapper";
 import { Tooltip } from "../components/Tooltip";
-import { observeMove } from "../utils/observeMove";
+import { observeMoveFull } from "../utils/observeMoveFull";
 
-export function Custom() {
+export function CustomFull() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const itemRef = useRef<HTMLDivElement>(null);
 
@@ -13,7 +13,7 @@ export function Custom() {
       return;
     }
 
-    return observeMove(itemRef.current, (rect) => {
+    return observeMoveFull(itemRef.current, (rect) => {
       setPosition({ x: rect.left, y: rect.bottom });
     });
   }, []);
