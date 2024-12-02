@@ -36,7 +36,7 @@ export function DynamicWidthItem({
       }}
     >
       {text}
-      <div>
+      <div style={{ display: "flex", gap: 4 }}>
         <button onClick={handleIncrementWidth}>+ width</button>
         <button onClick={handleDecrementWidth}>- width</button>
       </div>

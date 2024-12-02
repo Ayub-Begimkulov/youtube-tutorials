@@ -2,8 +2,17 @@ html,
 body {
   margin: 0;
   min-height: 100%;
+  color: white;
+  background-color: #212121;
 }
 
 #root {
   min-height: 100%;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
