@@ -12,8 +12,12 @@ export function Custom() {
     if (!itemRef.current) {
       return;
     }
+    // window.onscroll = () => {
+    //   console.log("scroll");
+    // };
 
     return observeMove(itemRef.current, (rect) => {
+      // console.log("intersection change");
       setPosition({ x: rect.left, y: rect.bottom });
     });
   }, []);

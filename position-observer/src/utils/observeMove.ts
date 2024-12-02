@@ -44,7 +44,7 @@ export function observeMove(
         }
       },
       {
-        root: root.ownerDocument,
+        root: document,
         rootMargin,
         threshold: 1,
       }

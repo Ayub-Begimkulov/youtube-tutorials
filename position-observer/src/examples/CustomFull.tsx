@@ -3,6 +3,7 @@ import { DynamicWidthItem } from "../components/DynamicWidthItem";
 import { ExampleWrapper } from "../components/ExampleWrapper";
 import { Tooltip } from "../components/Tooltip";
 import { observeMoveFull } from "../utils/observeMoveFull";
+import { flushSync } from "react-dom";
 
 export function CustomFull() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -13,8 +14,19 @@ export function CustomFull() {
       return;
     }
 
+    let isFirst = true;
     return observeMoveFull(itemRef.current, (rect) => {
-      setPosition({ x: rect.left, y: rect.bottom });
+      if (isFirst) {
+        // first time the callback will be called synchronously
+        // therefor to avoid getting react error we call `setPosition`
+        // without `flushSync`.
+        setPosition({ x: rect.left, y: rect.bottom });
+        isFirst = false;
+      } else {
+        flushSync(() => {
+          setPosition({ x: rect.left, y: rect.bottom });
+        });
+      }
     });
   }, []);
 
